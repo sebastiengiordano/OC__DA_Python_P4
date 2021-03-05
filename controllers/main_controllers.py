@@ -1,11 +1,12 @@
 from ..models.menus import Menu
-from ..views.main_views import (
+from ..views.menu_views import (
                                 HomeMenuView,
                                 NewTournamentView
                                 )
 from .form_fill_controller import (
                                 NewTournamentFormController
                                 )
+
 
 class ApplicationController:
 
