@@ -1,13 +1,13 @@
-# from os import path
-# import time
+from .controllers.main_controllers import ApplicationController
 
-# import model.py
-# import view.py
 
 def main():
     ''' main function which performed the following actions:
-            - Instantiate the class controller
+            - Instantiate ApplicationController()
+            - Start the application
     '''
+    app = ApplicationController()
+    app.start()
 
 
 ################

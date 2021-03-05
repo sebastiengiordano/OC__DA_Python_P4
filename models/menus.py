@@ -9,7 +9,7 @@ class MenuEntry:
 
 
 class Menu:
-    def __init__(self, ):
+    def __init__(self):
         self._entries = {}
         self._autokey = 1
 
