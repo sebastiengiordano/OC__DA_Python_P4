@@ -1,4 +1,4 @@
-from . import utils
+from . import view_utils
 
 
 class MenuView:
@@ -9,7 +9,7 @@ class MenuView:
 
     def _display_menu(self):
         key_max_lenght, option_max_lenght = self.menu.max_lenght()
-        menu_frame, menu_label = utils.menu_frame_design(
+        menu_frame, menu_label = view_utils.menu_frame_design(
             self._menu_name,
             key_max_lenght
             + option_max_lenght
@@ -23,7 +23,7 @@ class MenuView:
         print(menu_frame)
 
     def _get_user_key(self):
-        return input(">> ")
+        return input("   >> ")
 
     def get_user_choice(self):
         while True:

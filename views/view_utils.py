@@ -25,3 +25,21 @@ def menu_frame_design(menu_name, width_menu):
     menu_label += "/"
 
     return menu_frame, menu_label
+
+def alert_message_centered(*args):
+    max_size = 0
+    print("")    
+    for elem in args:
+        if max_size < len(elem):
+            max_size = len(elem)
+    if max_size % 2:
+        max_size +=1
+
+    print(" /" + "*" * (max_size +6) + "\\")
+
+    for elem in args:
+        print(" /** ", end="")
+        print(elem.center(max_size), end="")
+        print(" **\\")
+    
+    print(" /" + "*" * (max_size +6) + "\\")

@@ -3,7 +3,7 @@ from ..views.menu_views import (
                                 HomeMenuView,
                                 NewTournamentView
                                 )
-from .form_fill_controller import (
+from .tournament_controller import (
                                 NewTournamentFormController
                                 )
 
@@ -33,7 +33,7 @@ class HomeMenuController:
         self.menu.add(
             "auto",
             "Lancer / Reprendre un tournoi",
-            StartTournamentController())
+            ChoiceTournamentController())
         self.menu.add(
             "auto",
             "Mettre à jour les classements",
@@ -87,20 +87,49 @@ class NewTournamentController:
         return user_choice.handler
 
 
+class ChoiceTournamentController:
+
+    def __init__(self):
+        pass
+
+    def __call__(self):
+        pass
+
+
 class StartTournamentController:
-    pass
+
+    def __init__(self, tournament):
+        self.tournament = tournament
+
+    def __call__(self):
+        pass
 
 
 class RankingUpdateController:
-    pass
+    
+    def __init__(self):
+        pass
+
+    def __call__(self):
+        pass
 
 
 class AddPlayerController:
-    pass
+    
+    def __init__(self):
+        pass
+
+    def __call__(self):
+        pass
 
 
 class GenerateReportsController:
-    pass
+    
+    def __init__(self):
+        pass
+
+    def __call__(self):
+        pass
 
 
 class ExitApplicationController:
