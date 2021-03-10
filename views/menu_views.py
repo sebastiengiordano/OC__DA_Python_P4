@@ -52,7 +52,7 @@ class NewTournamentView(MenuView):
 
 
 class NewTournamentStartView(MenuView):
-    
+
     def __init__(self, menu):
         super().__init__(menu)
         self._menu_name = "Démarrer ce nouveau tournoi"

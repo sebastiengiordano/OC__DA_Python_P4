@@ -2,7 +2,6 @@ import datetime
 
 from . import view_utils
 from ..models import Tournament
-from ..models.menus import Menu
 from ..views import views_parameters
 from ..tools.tools_utils import is_date_format
 
@@ -42,7 +41,7 @@ class NewTournamentFormView:
                         " Attention,",
                         "Vous avez mentionné",
                         " une date dans le futur.")
-                tournament.date = date
+                tournament.start_date = date
                 break
             elif date:
                 if date == "day is out of range for month":
@@ -61,7 +60,8 @@ class NewTournamentFormView:
 
         # Ask for the numbers of turns
         while True:
-            print("\n    - le nombre de tours ("
+            print(
+                "\n    - le nombre de tours ("
                 f"{tournament.numbers_of_turns} par défaut)\n"
                 "      (appuyer sur la touche \"Entrée\" sans renseigner"
                 "\n       de valeur pour choisir la valeur par défaut.)")
@@ -72,7 +72,7 @@ class NewTournamentFormView:
                 user_input = int(user_input)
                 tournament.numbers_of_turns = user_input
                 break
-            except:
+            except Exception:
                 view_utils.alert_message_centered(
                     "Format invalide.",
                     " Veuillez choisir un",
@@ -116,7 +116,9 @@ class NewTournamentFormView:
 
     def get_user_validation(self):
         while True:
-            print("\n Est-ce que les informations sur ce tournoi sont correctes ? (o/n)")
+            print(
+                "\n Est-ce que les informations sur ce tournoi"
+                "sont correctes ? (o/n)")
             user_input = input("      >> ")
             if user_input in "oO":
                 return True
@@ -127,7 +129,7 @@ class NewTournamentFormView:
                 print("\n /**                 n pour non. **\\")
 
     def new_tournament_summary(self, tournament):
-        max_lenght = tournament.max_lenght()
+        max_lenght = self.max_lenght(tournament)
         menu_frame, menu_label = view_utils.menu_frame_design(
             "Résumé du tournoi",
             max_lenght)
@@ -136,22 +138,26 @@ class NewTournamentFormView:
         print(menu_frame)
         print(f"    Nom  : {tournament.name}")
         print(f"    Lieu : {tournament.location}")
-        print(f"    Date : {tournament.date:%d}/"
-            + f"{tournament.date:%m}/"
-            + f"{tournament.date:%Y}")
+        print(
+            f"    Date : {tournament.start_date:%d}/"
+            + f"{tournament.start_date:%m}/"
+            + f"{tournament.start_date:%Y}")
         print(f"    Nombre de tours : {tournament.numbers_of_turns}")
-        print(f"    Liste des joueurs :")
+        print("    Liste des joueurs :")
         for player in tournament.players:
-            print(" " * views_parameters.MENU_LEFT_SIDE_OFFSET
-                + player.center(max_lenght
-                + views_parameters.TEXT_LEFT_SIDE_OFFSET))
+            print(
+                " " * views_parameters.MENU_LEFT_SIDE_OFFSET
+                + player.center(
+                    max_lenght
+                    + views_parameters.TEXT_LEFT_SIDE_OFFSET))
         print(f"    Contrôle du temps : {tournament.time_control}")
-        print(f"    Description :")
+        print("    Description :")
         if not tournament.description == "":
             description = tournament.description.split()
-            description_display_size = (max_lenght
+            description_display_size = (
+                max_lenght
                 + views_parameters.TEXT_LEFT_SIDE_OFFSET
-                -views_parameters.MENU_LEFT_SIDE_OFFSET)
+                - views_parameters.MENU_LEFT_SIDE_OFFSET)
             size = (
                 views_parameters.TEXT_LEFT_SIDE_OFFSET
                 + views_parameters.FIRST_INDENT)
@@ -168,7 +174,34 @@ class NewTournamentFormView:
             print("")
         print(menu_frame)
 
+    def max_lenght(self, tournament):
+        max_lenght = []
+        if len(tournament.description) \
+                > views_parameters.DESCRIPTION_DISPLAY_MAX_SIZE:
+            max_lenght.append(views_parameters.DESCRIPTION_DISPLAY_MAX_SIZE)
+        max_lenght.append(
+            len(tournament.name)
+            + len("Nom : ")
+            + views_parameters.TEXT_LEFT_SIDE_OFFSET
+            )
+        max_lenght.append(
+            len(tournament.location)
+            + len("Lieu : ")
+            + views_parameters.TEXT_LEFT_SIDE_OFFSET
+            )
+        for player in tournament.players:
+            max_lenght.append(
+                len(player)
+                + views_parameters.TEXT_LEFT_SIDE_OFFSET
+                )
+        max_lenght.append(
+            len("Contrôle du temps : ")
+            + len(tournament.time_control)
+            + views_parameters.TEXT_LEFT_SIDE_OFFSET
+            )
+        max_lenght.sort()
+        return max_lenght[-1]
+
 
 class StarttournamentView:
     pass
-

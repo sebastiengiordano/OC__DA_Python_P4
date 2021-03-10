@@ -1,10 +1,10 @@
 from ..models.menus import Menu
 from ..views.menu_views import (
-                                HomeMenuView,
-                                NewTournamentView
+                                HomeMenuView
                                 )
 from .tournament_controller import (
-                                NewTournamentFormController
+                                NewTournamentController,
+                                ChoiceTournamentController
                                 )
 
 
@@ -59,54 +59,8 @@ class HomeMenuController:
         return user_choice.handler
 
 
-class NewTournamentController:
-    def __init__(self):
-        self.menu = Menu()
-        self._view = NewTournamentView(self.menu)
-
-    def __call__(self):
-        # 1. Generate the new tournament menu
-        self.menu.add(
-            "auto",
-            "Paramétrer le tournoi",
-            NewTournamentFormController())
-        self.menu.add(
-            "auto",
-            "Revenir au menu principal",
-            HomeMenuController())
-        self.menu.add(
-            "q",
-            "Quitter l'application",
-            ExitApplicationController())
-
-        # 2. Ask user choice
-        user_choice = self._view.get_user_choice()
-
-        # 3. Return the controller link to user choice
-        #    to the main controller
-        return user_choice.handler
-
-
-class ChoiceTournamentController:
-
-    def __init__(self):
-        pass
-
-    def __call__(self):
-        pass
-
-
-class StartTournamentController:
-
-    def __init__(self, tournament):
-        self.tournament = tournament
-
-    def __call__(self):
-        pass
-
-
 class RankingUpdateController:
-    
+
     def __init__(self):
         pass
 
@@ -115,7 +69,7 @@ class RankingUpdateController:
 
 
 class AddPlayerController:
-    
+
     def __init__(self):
         pass
 
@@ -124,7 +78,7 @@ class AddPlayerController:
 
 
 class GenerateReportsController:
-    
+
     def __init__(self):
         pass
 

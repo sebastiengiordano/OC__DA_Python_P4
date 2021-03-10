@@ -1,7 +1,53 @@
 from . import main_controllers
 from ..views.tournament_view import NewTournamentFormView
-from ..views.menu_views import NewTournamentStartView
-from ..models.menus import Menu 
+from ..views.menu_views import NewTournamentStartView, NewTournamentView
+from ..models.menus import Menu
+
+
+class NewTournamentController:
+    def __init__(self):
+        self.menu = Menu()
+        self._view = NewTournamentView(self.menu)
+
+    def __call__(self):
+        # 1. Generate the new tournament menu
+        self.menu.add(
+            "auto",
+            "Paramétrer le tournoi",
+            NewTournamentFormController())
+        self.menu.add(
+            "auto",
+            "Revenir au menu principal",
+            main_controllers.HomeMenuController())
+        self.menu.add(
+            "q",
+            "Quitter l'application",
+            main_controllers.ExitApplicationController())
+
+        # 2. Ask user choice
+        user_choice = self._view.get_user_choice()
+
+        # 3. Return the controller link to user choice
+        #    to the main controller
+        return user_choice.handler
+
+
+class ChoiceTournamentController:
+
+    def __init__(self):
+        pass
+
+    def __call__(self):
+        pass
+
+
+class StartTournamentController:
+
+    def __init__(self, tournament):
+        self.tournament = tournament
+
+    def __call__(self):
+        pass
 
 
 class NewTournamentFormController:
@@ -29,18 +75,18 @@ class NewTournamentFormController:
 
 
 class NewTournamentStartController:
-    
+
     def __init__(self, tournament):
         self.tournament = tournament
         self.menu = Menu()
         self._view = NewTournamentStartView(self.menu)
-    
+
     def __call__(self):
         # 1. Generate the new tournament start menu
         self.menu.add(
             "auto",
             "Lancer le tournoi",
-            main_controllers.StartTournamentController(tournament))
+            StartTournamentController(self.tournament))
         self.menu.add(
             "auto",
             "Revenir au menu principal",

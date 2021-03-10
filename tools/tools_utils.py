@@ -1,6 +1,7 @@
 from re import compile
 import datetime
 
+
 def is_date_format(string_to_test):
     date_format = compile(r"^(\d?\d)\W(\d?\d)\W(\d{4})$")
     string_match = date_format.match(string_to_test)
