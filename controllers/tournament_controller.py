@@ -2,6 +2,7 @@ from . import main_controllers
 from ..views.tournament_view import NewTournamentFormView
 from ..views.menu_views import NewTournamentStartView, NewTournamentView
 from ..models.menus import Menu
+from ..models.Player import Players
 
 
 class NewTournamentController:
@@ -102,3 +103,12 @@ class NewTournamentStartController:
         # 3. Return the controller link to user choice
         #    to the main controller
         return user_choice.handler
+
+
+class NewTournamentAddPlayer:
+
+    def __init__(self, tournament):
+        self.tournament = tournament
+        self.Players = Players.
+
+    def 

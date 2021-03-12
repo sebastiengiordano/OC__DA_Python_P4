@@ -8,7 +8,7 @@ from .tournament_controller import (
                                 )
 
 
-class ApplicationController:
+class   :
 
     def __init__(self):
         self.controller = None

@@ -1,4 +1,35 @@
+from tinydb import TinyDB, Query
+
+
+db_tournaments = TinyDB('db_tournaments.json')
+
 class Tournament:
+    """Class which represent a tournament.
+
+    Attributes
+    ----------
+    name : str
+        Name of the tournament.
+    location : str
+        Location of the tournament.
+    start_date : datetime.date
+        Start date of the tournament.
+    end_date : datetime.date
+        End date of the tournament.
+    numbers_of_turns : int
+        Number of rounds for this tournament.
+    players : []
+        List of players which participate to this tournament.
+    time_control : str
+        time control of the tournament.
+    description : str
+        Description of the tournament.
+
+    Methods
+    -------
+    time_control_type :
+        Return the time control type of this tournament.
+    """
 
     def __init__(self):
         self.name = ""
@@ -17,4 +48,6 @@ class Tournament:
 
     @property
     def time_control_type(self):
+        '''Return the time control type of this tournament.
+        '''
         return self._time_control_type
