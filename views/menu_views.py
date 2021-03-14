@@ -1,4 +1,5 @@
 from . import view_utils
+from . import views_parameters
 
 
 class MenuView:
@@ -23,7 +24,7 @@ class MenuView:
         print(menu_frame)
 
     def _get_user_key(self):
-        return input("   >> ")
+        return input(input_label)
 
     def get_user_choice(self):
         while True:
@@ -44,14 +45,14 @@ class HomeMenuView(MenuView):
         self._menu_name = "Menu d'acceuil"
 
 
-class NewTournamentView(MenuView):
+class NewTournamentMenuView(MenuView):
 
     def __init__(self, menu):
         super().__init__(menu)
         self._menu_name = "Création d'un nouveau tournoi"
 
 
-class NewTournamentStartView(MenuView):
+class NewTournamentStartMenuView(MenuView):
 
     def __init__(self, menu):
         super().__init__(menu)

@@ -18,7 +18,8 @@ class Players:
     add_player(player_to_add):
         Add new player in Players.players and db_players.json.
     is_player_exist(name):
-        Classmethod which return a list which contains all players with the same name.
+        Classmethod which return a list which contains
+        all players with the same name.
     """
 
     players = []
@@ -34,7 +35,8 @@ class Players:
         '''Add new player in Players.players and db_players.json.
 
             Check if player_to_add isn't already in Players.players list.
-            If its not the case, the player is added to this list and in db_players.json.
+            If its not the case, the player is added to this list
+            and in db_players.json.
         '''
         if isinstance(player_to_add, Player):
             player_find = False
@@ -105,10 +107,10 @@ class Player:
     def __eq__(self, player):
         if isinstance(player, Player):
             if (
-                    self._name == player._name
-                    and self._firstname  == player._firstname
-                    and self._birthday == player._birthday
-                    and self._sex == player._sex):
+                self._name == player._name
+        and self._firstname  == player._firstname
+        and self._birthday == player._birthday
+        and self._sex == player._sex):
                 return True
         return False
 
@@ -166,6 +168,21 @@ class Player:
         rank = player["rank"]
 
         return Player(name, firstname, birthday, sex, rank)
+
+    def player_id(self):
+        '''Return the id of the player in the db_players.json.
+        '''
+        db_players = TinyDB(
+            'ChessTournaments/models/database/db_players.json')
+        query = Query()
+        player = self.serialize()
+        el = db_players.get(
+            (query.name == self._name)
+            & (query.firstname == self._firstname)
+            & (query.birthday == player["birthday"])
+            & (query.sex == self._sex)
+        )
+        return el.doc_id
 
 
 def main():

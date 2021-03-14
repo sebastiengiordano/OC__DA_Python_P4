@@ -1,14 +1,14 @@
 from ..models.menus import Menu
-from ..views.menu_views import (
-                                HomeMenuView
-                                )
+from ..models.Player import Players
+from ..views.menu_views import HomeMenuView
+from ..views.player_views import AddPlayerView
 from .tournament_controller import (
                                 NewTournamentController,
                                 ChoiceTournamentController
                                 )
 
 
-class   :
+class ApplicationController:
 
     def __init__(self):
         self.controller = None
@@ -71,10 +71,18 @@ class RankingUpdateController:
 class AddPlayerController:
 
     def __init__(self):
-        pass
+        self._players = Players.players
+        self._view = AddPlayerView()
 
     def __call__(self):
-        pass
+        # 1. Ask for player name
+        name = self._view.get_player_name()
+
+        # 2. Check if this name is already in Players.players list
+        players_with_same_name = Players.is_player_exist(name)
+        if players_with_same_name == []:
+            # 2.1 This is a new play, add to the Players.players list
+            firstname = self._view.get_player_firstname()
 
 
 class GenerateReportsController:

@@ -1,6 +1,9 @@
 from . import main_controllers
 from ..views.tournament_view import NewTournamentFormView
-from ..views.menu_views import NewTournamentStartView, NewTournamentView
+from ..views.menu_views import (
+    NewTournamentStartMenuView,
+    NewTournamentMenuView)
+from ..views.player_views import NewTournamentAddPlayerView
 from ..models.menus import Menu
 from ..models.Player import Players
 
@@ -8,7 +11,7 @@ from ..models.Player import Players
 class NewTournamentController:
     def __init__(self):
         self.menu = Menu()
-        self._view = NewTournamentView(self.menu)
+        self._view = NewTournamentMenuView(self.menu)
 
     def __call__(self):
         # 1. Generate the new tournament menu
@@ -80,7 +83,7 @@ class NewTournamentStartController:
     def __init__(self, tournament):
         self.tournament = tournament
         self.menu = Menu()
-        self._view = NewTournamentStartView(self.menu)
+        self._view = NewTournamentStartMenuView(self.menu)
 
     def __call__(self):
         # 1. Generate the new tournament start menu
@@ -105,10 +108,41 @@ class NewTournamentStartController:
         return user_choice.handler
 
 
-class NewTournamentAddPlayer:
+def new_tournament_add_player_controller():
+    _players = Players.players
+    _view = NewTournamentAddPlayerView()
+    _players_list = []
+    numbers_of_players = 0
 
-    def __init__(self, tournament):
-        self.tournament = tournament
-        self.Players = Players.
+    while True:
+        numbers_of_players += 1
+        player_added = False
+        # 1. Ask for player name
+        name = _view.get_player_name(numbers_of_players)
+        if player_name == "":
+            return _players_list
 
-    def 
+        # 2. Check if this name is already in Players.players list
+        players_with_same_name = Players.is_player_exist(name)
+        if len(players_with_same_name) > 0:
+            # 2.1   There is at least one player with the same name
+            # 2.1.1 Ask if one of this(these) player(s) is the player
+            #   which participate to these tournament
+            user_choice = _view.ask_if_player_in_list()
+
+        if not player_added:
+            # 2.2   This is a new player, add to the tournament players list
+            #       and to the db_players.json
+            # 2.2.1 Ask for its firstname
+            firstname = _view.get_player_firstname()
+            # 2.2.2 Ask for its birthday
+            birthday = _view.get_player_birthday()
+            # 2.2.3 Ask for its sex
+            sex = _view.get_player_sex()
+            # 2.2.4 Ask for its rank
+            rank = _view.get_player_rank()
+            # 2.2.5 Add to the tournament players list
+            player = Player(name, firstname, birthday, sex, rank)
+            _players_list.append(player)
+            # 2.2.6 Add to the _players.json
+            Players.add_player(player)
