@@ -1,4 +1,12 @@
-from .views_parameters import input_label
+import datetime
+
+from . import view_utils
+from .views_parameters import (
+                            text_left_side_offset_view,
+                            first_indent_view,
+                            input_label
+                            )
+from ..tools.tools_utils import is_date_format
 
 
 class AddPlayerView:
@@ -45,7 +53,7 @@ class NewTournamentAddPlayerView:
         while True:
             birthday = input(
                 "\n" + text_left_side_offset_view
-                "- la date (au format jj/mm/aaaa)\n"
+                + "- la date (au format jj/mm/aaaa)\n"
                 + input_label)
             birthday = is_date_format(birthday)
             if isinstance(birthday, datetime.date):
@@ -69,7 +77,7 @@ class NewTournamentAddPlayerView:
         while True:
             sex = input(
                 "\n" + text_left_side_offset_view
-                "- le sexe du joueur (M/F)\n"
+                + "- le sexe du joueur (M/F)\n"
                 + input_label)
             if sex in "mfMF":
                 return sex.upper()
@@ -77,22 +85,30 @@ class NewTournamentAddPlayerView:
                 print("\n /** Réponse invalide. **\\")
             print("\n Veuillez indiquer :", end="")
 
-
     def get_player_rank(self):
         while True:
             rank = input(
                 "\n" + text_left_side_offset_view
-                "- le classement du joueur\n"
-                + text_left_side_offset_view + fisrt_indent_view
-                "(appuyer sur la touche \"Entrée\" sans renseigner"
-                + "\n" + text_left_side_offset_view + fisrt_indent_view
-                + " de valeur pour choisir la valeur 0.)")
+                + "- le classement du joueur\n"
+                + text_left_side_offset_view + first_indent_view
+                + "(appuyer sur la touche \"Entrée\" sans renseigner"
+                + "\n" + text_left_side_offset_view + first_indent_view
+                + " de valeur pour choisir la valeur 0.)"
                 + input_label)
             if isinstance(rank, int):
                 return rank
-            elif:
-                rank = ""
+            elif rank == "":
                 return 0
             else:
                 print("\n /** Réponse invalide. **\\")
             print("\n Veuillez indiquer :", end="")
+
+    def ask_if_player_in_list(self, players):
+        player_number = 0
+        for player in players:
+            player_number += 1
+            
+        print(
+            "\n" + text_left_side_offset_view
+            + "- le prénom du joueur")
+        return input("   " + input_label)

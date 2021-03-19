@@ -31,6 +31,7 @@ class Players:
             player = Player.deserialize(serialized_player)
             Players.players.append(player)
 
+    @classmethod
     def add_player(self, player_to_add):
         '''Add new player in Players.players and db_players.json.
 
@@ -46,7 +47,7 @@ class Players:
                     break
             if not player_find:
                 Players.players.append(player)
-                self._serialize_player(player)
+                return self._serialize_player(player)
 
     @classmethod
     def is_player_exist(self, name):
@@ -62,7 +63,7 @@ class Players:
         db_players = TinyDB(
             'ChessTournaments/models/database/db_players.json')
         player_serialize = player.serialize()
-        db_players.upsert(
+        db_players.insert(
             player_serialize,
             (query.name == player_serialize['name'])
             & (query['firstname'] == player_serialize['firstname'])
@@ -75,28 +76,37 @@ class Player:
 
     Attributes
     ----------
-    _name : str
-        Name of the player.
-    _firstname : str
-        Firstname of the player.
-    _birthday : datetime.date
-        Birthday of the player.
-    _sex : str
-         Sex of the player.
-    _rank : int
-        Player ranking.
+        _name : str
+            Name of the player.
+        _firstname : str
+            Firstname of the player.
+        _birthday : datetime.date
+            Birthday of the player.
+        _sex : str
+            Sex of the player.
+        _rank : int
+            Player ranking.
 
     Methods
     -------
-    rank :
-        Getter and setter for the _rank attribute.
-    serialize :
-        Method used to cast player information in str or int type.
-        Return a dict() of these information.
-    deserialize :
+        rank :
+            Getter and setter for the _rank attribute.
+        serialize :
+            Method used to cast player information in str or int type.
+            Return a dict() of these information.
+        deserialize :
         classmethod used to restore player information come from
         'ChessTournaments/models/database/db_players.json'.
+
+    Special Methods
+    -------
+        eq :
+            Compare the players name, firstname, birthday, sex.
+            If their equal, return true. Otherwise return False.
+        len :
+            Return the size of the name + firstname + blank space.
     """
+
     def __init__(self, name, firstname, birthday, sex, rank=0):
         self._name = name
         self._firstname = firstname
@@ -113,6 +123,9 @@ class Player:
         and self._sex == player._sex):
                 return True
         return False
+
+    def __len__(self):
+        return len(self._name) + len(self._firstname) + 1
 
     def __str__(self):
         '''Special method used for debug only.
@@ -169,7 +182,7 @@ class Player:
 
         return Player(name, firstname, birthday, sex, rank)
 
-    def player_id(self):
+    def player_id(self, player):
         '''Return the id of the player in the db_players.json.
         '''
         db_players = TinyDB(

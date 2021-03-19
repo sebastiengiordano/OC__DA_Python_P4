@@ -1,14 +1,21 @@
 import datetime
 
+
+from .player_views import AddPlayerView
 from . import view_utils
-from . import views_parameters
+from .views_parameters import (
+                            text_left_side_offset_view,
+                            first_indent_view,
+                            input_label,
+                            MENU_LEFT_SIDE_OFFSET,
+                            TEXT_LEFT_SIDE_OFFSET,
+                            DESCRIPTION_DISPLAY_MAX_SIZE,
+                            FIRST_INDENT
+                            )
 from ..models import Tournament
-from ..models import Player
-from ..views import views_parameters
+from ..models.Player import Players
 from ..tools.tools_utils import is_date_format
-from ..controllers.tournament_controller import (
-    new_tournament_add_player_controller
-)
+from ..controllers import tournament_controller
 
 
 class NewTournamentFormView:
@@ -35,12 +42,12 @@ class NewTournamentFormView:
         tournament.players = self._ask_4_names_of_participants()
 
         # Ask for time control type
-        tournament.time_control = self._ask_4_time_control_type()
+        tournament.time_control = self._ask_4_time_control_type(tournament)
 
         # Ask for the tournament description
         tournament.description = input(
-            "\n" + text_left_side_offset_view 
-            + "- la description du tournoi\n
+            "\n" + text_left_side_offset_view
+            + "- la description du tournoi\n"
             + input_label)
 
         return tournament
@@ -77,37 +84,37 @@ class NewTournamentFormView:
         print(
             text_left_side_offset_view
             + f"Nombre de tours : {tournament.numbers_of_turns}")
-        self._show_tournament_players(tournament)
+        self._show_tournament_players(tournament, max_lenght)
         print(
             text_left_side_offset_view
             + f"Contrôle du temps : {tournament.time_control}")
-        self._show_tournament_description()
+        self._show_tournament_description(tournament, max_lenght)
         print(menu_frame)
 
     def max_lenght(self, tournament):
         max_lenght = []
         if len(tournament.description) \
-                > views_parameters.DESCRIPTION_DISPLAY_MAX_SIZE:
-            max_lenght.append(views_parameters.DESCRIPTION_DISPLAY_MAX_SIZE)
+                > DESCRIPTION_DISPLAY_MAX_SIZE:
+            max_lenght.append(DESCRIPTION_DISPLAY_MAX_SIZE)
         max_lenght.append(
             len(tournament.name)
             + len("Nom : ")
-            + views_parameters.TEXT_LEFT_SIDE_OFFSET
+            + TEXT_LEFT_SIDE_OFFSET
             )
         max_lenght.append(
             len(tournament.location)
             + len("Lieu : ")
-            + views_parameters.TEXT_LEFT_SIDE_OFFSET
+            + TEXT_LEFT_SIDE_OFFSET
             )
-        for player in tournament.players:
+        for player_id in tournament.players:
             max_lenght.append(
                 len(player)
-                + views_parameters.TEXT_LEFT_SIDE_OFFSET
+                + TEXT_LEFT_SIDE_OFFSET
                 )
         max_lenght.append(
             len("Contrôle du temps : ")
             + len(tournament.time_control)
-            + views_parameters.TEXT_LEFT_SIDE_OFFSET
+            + TEXT_LEFT_SIDE_OFFSET
             )
         max_lenght.sort()
         return max_lenght[-1]
@@ -125,7 +132,7 @@ class NewTournamentFormView:
         while True:
             location = input(
                 "\n" + text_left_side_offset_view
-                +"- le lieu\n"
+                + "- le lieu\n"
                 + input_label)
             if not(location == ""):
                 return location
@@ -134,7 +141,7 @@ class NewTournamentFormView:
         while True:
             date = input(
                 "\n" + text_left_side_offset_view
-                "- la date (au format jj/mm/aaaa)\n"
+                + "- la date (au format jj/mm/aaaa)\n"
                 + input_label)
             date = is_date_format(date)
             if isinstance(date, datetime.date):
@@ -169,9 +176,9 @@ class NewTournamentFormView:
             print(
                 "\n    - le nombre de tours ("
                 f"{tournament.numbers_of_turns} par défaut)\n"
-                + text_left_side_offset_view + fisrt_indent_view
-                "(appuyer sur la touche \"Entrée\" sans renseigner"
-                + "\n" + text_left_side_offset_view + fisrt_indent_view
+                + text_left_side_offset_view + first_indent_view
+                + "(appuyer sur la touche \"Entrée\" sans renseigner"
+                + "\n" + text_left_side_offset_view + first_indent_view
                 + " de valeur pour choisir la valeur par défaut.)")
             user_input = input(input_label)
             if user_input == "":
@@ -189,12 +196,12 @@ class NewTournamentFormView:
     def _ask_4_names_of_participants(self):
         print("\n" + text_left_side_offset_view + "- la liste des joueurs")
         print(
-            text_left_side_offset_view + fisrt_indent_view
+            text_left_side_offset_view + first_indent_view
             + "(appuyer sur la touche \"Entrée\" sans renseigner"
-            + "\n" + text_left_side_offset_view + fisrt_indent_view
+            + "\n" + text_left_side_offset_view + first_indent_view
             + " de nom pour terminer cette étape.)",
             end="")
-        tournament.players = new_tournament_add_player_controller()
+        return tournament_controller.new_tournament_add_player_controller()
 
     def _ask_4_time_control_type(self, tournament):
         while True:
@@ -219,10 +226,10 @@ class NewTournamentFormView:
         print(text_left_side_offset_view + "Liste des joueurs :")
         for player in tournament.players:
             print(
-                " " * views_parameters.MENU_LEFT_SIDE_OFFSET
+                " " * MENU_LEFT_SIDE_OFFSET
                 + player.center(
                     max_lenght
-                    + views_parameters.TEXT_LEFT_SIDE_OFFSET))
+                    + TEXT_LEFT_SIDE_OFFSET))
 
     def _show_tournament_description(self, tournament, max_lenght):
         print(text_left_side_offset_view + "Description :")
@@ -230,11 +237,11 @@ class NewTournamentFormView:
             description = tournament.description.split()
             description_display_size = (
                 max_lenght
-                + views_parameters.TEXT_LEFT_SIDE_OFFSET
-                - views_parameters.MENU_LEFT_SIDE_OFFSET)
+                + TEXT_LEFT_SIDE_OFFSET
+                - MENU_LEFT_SIDE_OFFSET)
             size = (
-                views_parameters.TEXT_LEFT_SIDE_OFFSET
-                + views_parameters.FIRST_INDENT)
+                TEXT_LEFT_SIDE_OFFSET
+                + FIRST_INDENT)
             print(" " * size, end="")
             for text in description:
                 if size + len(text) < description_display_size:

@@ -1,5 +1,5 @@
 from . import view_utils
-from . import views_parameters
+from .views_parameters import input_label
 
 
 class MenuView:

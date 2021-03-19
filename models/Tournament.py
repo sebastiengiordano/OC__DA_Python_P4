@@ -3,6 +3,7 @@ from tinydb import TinyDB, Query
 
 db_tournaments = TinyDB('db_tournaments.json')
 
+
 class Tournament:
     """Class which represent a tournament.
 
@@ -20,6 +21,7 @@ class Tournament:
         Number of rounds for this tournament.
     players : []
         List of players which participate to this tournament.
+        Stored according to their id in db_players.json
     time_control : str
         time control of the tournament.
     description : str

@@ -109,7 +109,6 @@ class NewTournamentStartController:
 
 
 def new_tournament_add_player_controller():
-    _players = Players.players
     _view = NewTournamentAddPlayerView()
     _players_list = []
     numbers_of_players = 0
@@ -119,7 +118,7 @@ def new_tournament_add_player_controller():
         player_added = False
         # 1. Ask for player name
         name = _view.get_player_name(numbers_of_players)
-        if player_name == "":
+        if name == "":
             return _players_list
 
         # 2. Check if this name is already in Players.players list
@@ -128,7 +127,7 @@ def new_tournament_add_player_controller():
             # 2.1   There is at least one player with the same name
             # 2.1.1 Ask if one of this(these) player(s) is the player
             #   which participate to these tournament
-            user_choice = _view.ask_if_player_in_list()
+            player_added = _view.ask_if_player_in_list(players_with_same_name)
 
         if not player_added:
             # 2.2   This is a new player, add to the tournament players list
@@ -141,8 +140,5 @@ def new_tournament_add_player_controller():
             sex = _view.get_player_sex()
             # 2.2.4 Ask for its rank
             rank = _view.get_player_rank()
-            # 2.2.5 Add to the tournament players list
-            player = Player(name, firstname, birthday, sex, rank)
-            _players_list.append(player)
-            # 2.2.6 Add to the _players.json
-            Players.add_player(player)
+            # 2.2.5 Add to the tournament players list and to db_players.json
+            _players_list.append(Players.add_player(player))
