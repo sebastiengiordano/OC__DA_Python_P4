@@ -15,12 +15,20 @@ class Tournaments:
 
     Methods
     -------
-        add_player(player_to_add):
-            Add new player in Players.players and db_players.json.
-        is_player_exist(name):
-            Classmethod which return a list which contains
-            all players with the same name.
+        add_tournament(tournament_to_add):
+            Add new tournament in Tournaments.tournaments and db_tournaments.json.
     '''
+
+    tournaments = []
+
+    @classmethod
+    def add_tournament(cls, tournament_to_add):
+        '''Add new tournament in db_tournament.json.
+        '''
+        db_tournament = TinyDB(
+            './models/database/db_tournament.json')
+        tournaments.append(tournament_to_add)
+        return db_tournament.insert(tournament_to_add.serialize())
 
 
 class Tournament:
@@ -45,6 +53,8 @@ class Tournament:
         time control of the tournament.
     description : str
         Description of the tournament.
+    turns : []
+        List which contains each turn of this tournaments
     _turn_in_progress : int
         Indicate the turn which will be played.
 
@@ -52,8 +62,6 @@ class Tournament:
     -------
     time_control_type :
         Return the time control type of this tournament.
-    add_to_database:
-        Add this tournament db_tournament.json.
     '''
 
     def __init__(self):
@@ -78,14 +86,7 @@ class Tournament:
         '''
         return self._time_control_type
 
-    def add_to_database(self):
-        '''Add new tournament in db_tournament.json.
-        '''
-        db_tournament = TinyDB(
-            './models/database/db_tournament.json')
-        return db_tournament.insert(self._serialize())
-
-    def _serialize(self):
+    def serialize(self):
         '''Method used to cast tournament information in str or int type.
 
             Return a dict() of these information.
@@ -102,3 +103,33 @@ class Tournament:
         tournament["description"] = self.description
         tournament["turn_in_progress"] = self._turn_in_progress
         return tournament
+
+
+class Turn:
+    '''Class which represent one turn of a tournament.
+
+    Attributes
+    ----------
+        current_round : str
+            Indicate the current round.
+        player_one : Player
+            Instance of the first player which participate to this turn.
+        player_two : Player
+            Instance of the second player which participate to this turn.
+        winner_id : int
+            ID of the player which win this turn.
+
+    Methods
+    -------
+        add_tournament(tournament_to_add):
+            Add new tournament in Tournaments.tournaments and db_tournaments.json.
+    '''
+
+    @classmethod
+    def serialize(self):
+        '''Method used to cast turn information in str or int type.
+
+            Return a dict() of these information.
+        '''
+        turn = {}
+        return turn

@@ -74,7 +74,7 @@ class NewTournamentFormController:
             return main_controllers.HomeMenuController()
 
         # 4. Save the tournament setup
-        tournament.add_to_database()
+        Tournaments.add_to_database()
 
         # 5. Ask user choice (start tournament / back to main menu)
         return NewTournamentStartController(tournament)
