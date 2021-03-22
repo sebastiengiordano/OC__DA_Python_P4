@@ -2,10 +2,11 @@ from . import main_controllers
 from ..views.tournament_view import NewTournamentFormView
 from ..views.menu_views import (
     NewTournamentStartMenuView,
-    NewTournamentMenuView)
-from ..views.player_views import NewTournamentAddPlayerView
+    NewTournamentMenuView
+    )
+from ..views.tournament_view import NewTournamentAddPlayerView
 from ..models.menus import Menu
-from ..models.Player import Players
+from ..models.Player import Players, Player
 
 
 class NewTournamentController:
@@ -73,6 +74,7 @@ class NewTournamentFormController:
             return main_controllers.HomeMenuController()
 
         # 4. Save the tournament setup
+        tournament.add_to_database()
 
         # 5. Ask user choice (start tournament / back to main menu)
         return NewTournamentStartController(tournament)
@@ -127,7 +129,12 @@ def new_tournament_add_player_controller():
             # 2.1   There is at least one player with the same name
             # 2.1.1 Ask if one of this(these) player(s) is the player
             #   which participate to these tournament
-            player_added = _view.ask_if_player_in_list(players_with_same_name)
+            player_choice = _view.ask_if_player_in_list(players_with_same_name)
+            if player_choice in range(len(players_with_same_name)):
+                player_added = True
+                player_id = Players.get_player_id(
+                    players_with_same_name[player_choice])
+                _players_list.append(player_id)
 
         if not player_added:
             # 2.2   This is a new player, add to the tournament players list
@@ -141,4 +148,5 @@ def new_tournament_add_player_controller():
             # 2.2.4 Ask for its rank
             rank = _view.get_player_rank()
             # 2.2.5 Add to the tournament players list and to db_players.json
+            player = Player(name, firstname, birthday, sex, rank)
             _players_list.append(Players.add_player(player))

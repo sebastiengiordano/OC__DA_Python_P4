@@ -14,7 +14,11 @@ from .views_parameters import (
                             )
 from ..models import Tournament
 from ..models.Player import Players
-from ..tools.tools_utils import is_date_format
+from ..tools.tools_utils import (
+                            is_date_format,
+                            datetime_to_str,
+                            valid_name
+                            )
 from ..controllers import tournament_controller
 
 
@@ -34,6 +38,7 @@ class NewTournamentFormView:
 
         # Ask for the tournament date
         tournament.start_date = self._ask_4_tournament_date()
+        tournament.end_date = tournament.start_date
 
         # Ask for the numbers of turns
         tournament.numbers_of_turns = self._ask_4_numbers_of_turns(tournament)
@@ -58,13 +63,15 @@ class NewTournamentFormView:
                 "\n Est-ce que les informations sur ce tournoi"
                 "sont correctes ? (o/n)")
             user_input = input(input_label)
-            if user_input in "oO":
+            if user_input == "":
+                pass
+            elif user_input in "oO":
                 return True
             elif user_input in "nN":
                 return False
-            else:
-                print("\n /** Veuillez entrer o pour oui, **\\", end="")
-                print("\n /**                 n pour non. **\\")
+
+            print("\n /** Veuillez entrer o pour oui, **\\", end="")
+            print("\n /**                 n pour non. **\\")
 
     def new_tournament_summary(self, tournament):
         max_lenght = self.max_lenght(tournament)
@@ -107,6 +114,7 @@ class NewTournamentFormView:
             + TEXT_LEFT_SIDE_OFFSET
             )
         for player_id in tournament.players:
+            player = Players.get_player_by_id(player_id)
             max_lenght.append(
                 len(player)
                 + TEXT_LEFT_SIDE_OFFSET
@@ -142,34 +150,41 @@ class NewTournamentFormView:
             date = input(
                 "\n" + text_left_side_offset_view
                 + "- la date (au format jj/mm/aaaa)\n"
+                + text_left_side_offset_view + first_indent_view
+                + "(appuyer sur la touche \"Entrée\" sans renseigner"
+                + "\n" + text_left_side_offset_view + first_indent_view
+                + " de valeur pour choisir la date d'aujourd'hui.)"
                 + input_label)
-            date = is_date_format(date)
-            if isinstance(date, datetime.date):
-                if date < date.today():
-                    view_utils.alert_message_centered(
-                        " Attention,",
-                        "Vous avez mentionné",
-                        " une date dans le passé.")
-                if date > date.today():
-                    view_utils.alert_message_centered(
-                        " Attention,",
-                        "Vous avez mentionné",
-                        " une date dans le futur.")
-                return date
-            elif date:
-                if date == "day is out of range for month":
-                    view_utils.alert_message_centered(
-                        "Format de date invalide.",
-                        "Le jour indiqué est trop",
-                        "grand pour ce mois-ci.")
-                elif date == "month must be in 1..12":
-                    view_utils.alert_message_centered(
-                        "Format de date invalide.",
-                        "Le mois doit être compris",
-                        "entre 1 et 12.")
+            if date == "":
+                date = datetime.date.today()
             else:
-                print("\n /** Format de date invalide. **\\")
-            print("\n Veuillez indiquer :", end="")
+                date = is_date_format(date)
+                if isinstance(date, datetime.date):
+                    if date < date.today():
+                        view_utils.alert_message_centered(
+                            " Attention,",
+                            "Vous avez mentionné",
+                            " une date dans le passé.")
+                    if date > date.today():
+                        view_utils.alert_message_centered(
+                            " Attention,",
+                            "Vous avez mentionné",
+                            " une date dans le futur.")
+                    return date
+                elif date:
+                    if date == "day is out of range for month":
+                        view_utils.alert_message_centered(
+                            "Format de date invalide.",
+                            "Le jour indiqué est trop",
+                            "grand pour ce mois-ci.")
+                    elif date == "month must be in 1..12":
+                        view_utils.alert_message_centered(
+                            "Format de date invalide.",
+                            "Le mois doit être compris",
+                            "entre 1 et 12.")
+                else:
+                    print("\n /** Format de date invalide. **\\")
+                print("\n Veuillez indiquer :", end="")
 
     def _ask_4_numbers_of_turns(self, tournament):
         while True:
@@ -205,9 +220,13 @@ class NewTournamentFormView:
 
     def _ask_4_time_control_type(self, tournament):
         while True:
-            print("\n    - le type de contrôle de temps")
+            print(
+                "\n" + text_left_side_offset_view
+                + "- le type de contrôle de temps")
             for key, value in tournament.time_control_type.items():
-                print(f"         {key} : {value}")
+                print(
+                    text_left_side_offset_view * 2
+                    + f"{key} : {value}")
             time_control = input(input_label)
             if time_control in tournament.time_control_type:
                 return tournament.time_control_type[time_control]
@@ -224,7 +243,9 @@ class NewTournamentFormView:
 
     def _show_tournament_players(self, tournament, max_lenght):
         print(text_left_side_offset_view + "Liste des joueurs :")
-        for player in tournament.players:
+        for player_id in tournament.players:
+            player = Players.get_player_by_id(player_id)
+            player = player.name + " " + player.firstname
             print(
                 " " * MENU_LEFT_SIDE_OFFSET
                 + player.center(
@@ -275,5 +296,125 @@ class NewTournamentAddPlayerView:
             # 2.1 This is a new play, add to the list
             self._view
 
-    def ask_if_player_in_list(self):
-        pass
+    def get_player_name(self, numbers_of_players):
+        while True:
+            print(
+                "\n" + text_left_side_offset_view
+                + f"- le nom du joueur {numbers_of_players}")
+            player_name = input("   " + input_label)
+            if not valid_name(player_name):
+                view_utils.alert_message_centered(
+                    "Format invalide.",
+                    "Le nom ne doit être",
+                    "composé que de lettre.")
+            else:
+                return player_name.capitalize()
+
+    def get_player_firstname(self):
+        print(
+            "\n" + text_left_side_offset_view
+            + "- le prénom du joueur")
+        player_firstname = input("   " + input_label)
+        if not valid_name(player_firstname):
+            view_utils.alert_message_centered(
+                "Format invalide.",
+                "Le prénom ne doit être",
+                "composé que de lettre.")
+        else:
+            return player_firstname.capitalize()
+
+    def get_player_birthday(self):
+        while True:
+            birthday = input(
+                "\n" + text_left_side_offset_view
+                + "- la date (au format jj/mm/aaaa)\n"
+                + input_label)
+            birthday = is_date_format(birthday)
+            if isinstance(birthday, datetime.date):
+                return birthday
+            elif birthday:
+                if birthday == "day is out of range for month":
+                    view_utils.alert_message_centered(
+                        "Format de date invalide.",
+                        "Le jour indiqué est trop",
+                        "grand pour ce mois-ci.")
+                elif birthday == "month must be in 1..12":
+                    view_utils.alert_message_centered(
+                        "Format de date invalide.",
+                        "Le mois doit être compris",
+                        "entre 1 et 12.")
+            else:
+                print("\n /** Format de date invalide. **\\")
+            print("\n Veuillez indiquer :", end="")
+
+    def get_player_sex(self):
+        while True:
+            sex = input(
+                "\n" + text_left_side_offset_view
+                + "- le sexe du joueur (M/F)\n"
+                + input_label)
+            if sex != "" and sex in "mfMF":
+                return sex.upper()
+            else:
+                print("\n /** Réponse invalide. **\\")
+            print("\n Veuillez indiquer :", end="")
+
+    def get_player_rank(self):
+        while True:
+            rank = input(
+                "\n" + text_left_side_offset_view
+                + "- le classement du joueur\n"
+                + text_left_side_offset_view + first_indent_view
+                + "(appuyer sur la touche \"Entrée\" sans renseigner"
+                + "\n" + text_left_side_offset_view + first_indent_view
+                + " de valeur pour choisir la valeur 0.)\n"
+                + input_label)
+            if rank.isdigit():
+                return int(rank)
+            elif rank == "":
+                return 0
+            else:
+                print("\n /** Réponse invalide. **\\")
+            print("\n Veuillez indiquer :", end="")
+
+    def ask_if_player_in_list(self, players):
+        while True:
+            player_number = 0
+            size_list = [len(player) for player in players]
+            size_list.sort()
+            max_lenght = size_list[-1]
+            menu_frame, menu_label = view_utils.menu_frame_design(
+                "Liste des joueurs portant le même nom",
+                max_lenght)
+            print("\n" + menu_frame)
+            print(menu_label)
+            print(menu_frame, end='')
+            for player in players:
+                player_number += 1
+                print(
+                    "\n" + text_left_side_offset_view
+                    + f"Joueur n°{player_number}:\n"
+                    + text_left_side_offset_view
+                    + f"   Nom: {player.name}\n"
+                    + text_left_side_offset_view
+                    + f"   Prénom: {player.firstname}\n"
+                    + text_left_side_offset_view
+                    + "   Anniversaire: " + datetime_to_str(player.birthday)
+                    + "\n"
+                    + text_left_side_offset_view
+                    + f"   Sexe: {player.sex}")
+            print(menu_frame)
+            print(
+                text_left_side_offset_view
+                + "Veuillez indiquer le numéro du joueur:\n"
+                + text_left_side_offset_view + first_indent_view
+                + "(appuyer sur la touche \"Entrée\" sans renseigner"
+                + "\n" + text_left_side_offset_view + first_indent_view
+                + " de valeur si aucun joueur ne correspond.)")
+            player_choice = input("   " + input_label)
+            if player_choice == "":
+                return None
+            elif (
+                    player_choice.isdigit()
+                    and int(player_choice) in range(1, len(players) + 1)):
+                return int(player_choice) - 1

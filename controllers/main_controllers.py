@@ -1,5 +1,5 @@
 from ..models.menus import Menu
-from ..models.Player import Players
+from ..models.Player import Players, Player
 from ..views.menu_views import HomeMenuView
 from ..views.player_views import AddPlayerView
 from .tournament_controller import (
@@ -12,6 +12,7 @@ class ApplicationController:
 
     def __init__(self):
         self.controller = None
+        Players.init()
 
     def start(self):
         self.controller = HomeMenuController()
@@ -83,6 +84,11 @@ class AddPlayerController:
         if players_with_same_name == []:
             # 2.1 This is a new play, add to the Players.players list
             firstname = self._view.get_player_firstname()
+            birthday = self._view.get_player_birthday()
+            sex = self._view.get_player_sex()
+            rank = self._view.get_player_rank()
+            Players.add_player(
+                Player(name, firstname, birthday, sex, rank))
 
 
 class GenerateReportsController:

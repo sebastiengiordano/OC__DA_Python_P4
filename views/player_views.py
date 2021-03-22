@@ -6,48 +6,43 @@ from .views_parameters import (
                             first_indent_view,
                             input_label
                             )
-from ..tools.tools_utils import is_date_format
+from ..tools.tools_utils import (
+                            is_date_format,
+                            valid_name
+                            )
 
 
 class AddPlayerView:
 
     def get_player_name(self):
-        print(
-            "\n" + text_left_side_offset_view
-            + "- le nom du joueur")
-        player_name = input("   " + input_label)
-        return player_name
+        while True:
+            print(
+                "\n" + text_left_side_offset_view
+                + "- le nom du joueur")
+            player_name = input("   " + input_label)
+            for elem in player_name:
+                if elem.isalpha() or elem.isspace() or elem == "\'":
+                    view_utils.alert_message_centered(
+                        "Format invalide.",
+                        "Le nom ne doit être",
+                        "composé que de lettre.")
+                    print("\n /** Format invalide. **\\")
+                    print("\n Veuillez indiquer :", end="")
+                    break
+            return player_name.capitalize()
 
     def get_player_firstname(self):
         print(
             "\n" + text_left_side_offset_view
             + "- le prénom du joueur")
-        return input("   " + input_label)
-
-    def get_player_birthday(self):
-        pass
-
-    def get_player_sex(self):
-        pass
-
-    def get_player_rank(self):
-        pass
-
-
-class NewTournamentAddPlayerView:
-
-    def get_player_name(self, numbers_of_players):
-        print(
-            "\n" + text_left_side_offset_view
-            + f"- le nom du joueur {numbers_of_players}")
-        player_name = input("   " + input_label)
-        return player_name
-
-    def get_player_firstname(self):
-        print(
-            "\n" + text_left_side_offset_view
-            + "- le prénom du joueur")
-        return input("   " + input_label)
+        player_firstname = input("   " + input_label)
+        if not valid_name(player_firstname):
+            view_utils.alert_message_centered(
+                "Format invalide.",
+                "Le prénom ne doit être",
+                "composé que de lettre.")
+        else:
+            return player_firstname.capitalize()
 
     def get_player_birthday(self):
         while True:
@@ -93,22 +88,12 @@ class NewTournamentAddPlayerView:
                 + text_left_side_offset_view + first_indent_view
                 + "(appuyer sur la touche \"Entrée\" sans renseigner"
                 + "\n" + text_left_side_offset_view + first_indent_view
-                + " de valeur pour choisir la valeur 0.)"
+                + " de valeur pour choisir la valeur 0.\n)"
                 + input_label)
-            if isinstance(rank, int):
-                return rank
+            if rank.isdigit():
+                return int(rank)
             elif rank == "":
                 return 0
             else:
                 print("\n /** Réponse invalide. **\\")
             print("\n Veuillez indiquer :", end="")
-
-    def ask_if_player_in_list(self, players):
-        player_number = 0
-        for player in players:
-            player_number += 1
-            
-        print(
-            "\n" + text_left_side_offset_view
-            + "- le prénom du joueur")
-        return input("   " + input_label)
