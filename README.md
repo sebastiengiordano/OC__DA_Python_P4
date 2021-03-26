@@ -1,18 +1,17 @@
 <p align="center">
     <br />
     <h1 align="center">Chess tournament</h1>
-    <h1 align="center">(Swiss system)</h1>
-    <br />
-    <h2 align="left">
+    <h2 align="center">(Swiss system)</h2>
+    </br>
+    <p align="left">
         This program aims to manage a chess tournament.
         You can :
-        * create a new tournament
-        * start or restart a tournament
-        * add player to your database
-        * Update the players ranking
-        * Generate lots of report (on players and tournaments)
-        <br />
-    </h2>
+* create a new tournament
+* start or restart a tournament
+* add player to your database
+* Update the players ranking
+* Generate lots of report (on players and tournaments)
+    </p>
 </p>
 
 

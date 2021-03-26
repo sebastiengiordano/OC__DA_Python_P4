@@ -125,22 +125,22 @@ class Player:
 
     Methods
     -------
-        name :
+        name() :
             Getter for the _name attribute.
-        firstname :
+        firstname() :
             Getter for the _firstname attribute.
-        birthday :
+        birthday() :
             Getter for the _birthday attribute.
-        sex :
+        sex() :
             Getter for the _sex attribute.
-        rank :
+        rank() :
             Getter and setter for the _rank attribute.
-        serialize :
+        serialize() :
             Method used to cast player information in str or int type.
-            Return a dict() of these information.
-        deserialize :
-        classmethod used to restore player information come from
-        'ChessTournaments/models/database/db_players.json'.
+            Return a dict() of these informations.
+        deserialize(player) :
+            classmethod used to restore player information come from
+            'ChessTournaments/models/database/db_players.json'.
 
     Special Methods
     -------
@@ -224,7 +224,7 @@ class Player:
     def serialize(self):
         '''Method used to cast player information in str or int type.
 
-            Return a dict() of these information.
+            Return a dict() of these informations.
         '''
         player = {}
         player["name"] = self._name
@@ -237,9 +237,8 @@ class Player:
 
     @classmethod
     def deserialize(cls, player):
-        '''
-            classmethod used to restore player information come from
-            'ChessTournaments/models/database/db_players.json'.
+        '''Classmethod used to restore player information come from
+        serialized player data.
         '''
         name = player["name"]
         firstname = player["firstname"]

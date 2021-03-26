@@ -276,8 +276,31 @@ class NewTournamentFormView:
             print("")
 
 
-class StarttournamentView:
-    pass
+class StartTournamentView:
+
+    def show_peer(self, peer_list):
+        menu_frame, menu_label = view_utils.menu_frame_design(
+            "Liste des pairs pour ce tour",
+            0)
+        print("\n" + menu_frame)
+        print(menu_label)
+        print(menu_frame)
+        for peer in peer_list:
+            print(
+                text_left_side_offset_view
+                + f"{peer[0]} VS {peer[1]}")
+        print(menu_frame)
+
+    def get_user_choice(self):
+        while True:
+            # Display the menu to user
+            self._display_menu()
+            # Ask the user its choice
+            choice = self._get_user_key()
+            # Validate the user choice
+            if choice in self.menu:
+                # Return the user choice
+                return self.menu[choice]
 
 
 class NewTournamentAddPlayerView:

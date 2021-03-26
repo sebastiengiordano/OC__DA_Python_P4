@@ -1,5 +1,5 @@
 from . import main_controllers
-from ..views.tournament_view import NewTournamentFormView
+from ..views.tournament_view import NewTournamentFormView, StartTournamentView
 from ..views.menu_views import (
     NewTournamentStartMenuView,
     NewTournamentMenuView
@@ -50,9 +50,55 @@ class ChoiceTournamentController:
 class StartTournamentController:
 
     def __init__(self, tournament):
-        self.tournament = tournament
+        self.menu = Menu()
+        self._tournament = tournament
+        self._view = StartTournamentView()
+        self._turn_menu_view = TurnMenuView(self.menu, tournament.turn_in_progress)
 
     def __call__(self):
+        # 1. Peer generation
+        peer_list = self._peer_generation()
+
+        # 2. Show peer for this turn
+        self._view.show_peer(peer_list)
+
+        # 3. Ask for match results
+        for peer in peer_list:
+            tournament = self._set_peer_result(peer, tournament)
+
+        # 4. Update the turn number
+        tournament.turn_in_progress += 1
+
+        # 5. Save the tournament
+        Tournaments.update_tournament(tournament)
+
+        self.menu.add(
+            "s",
+            "Lancer le tour suivant",
+            StartTournamentController(self.tournament))
+        self.menu.add(
+            "h",
+            "Allez au menu d'acceuil",
+            main_controllers.HomeMenuController())
+        self.menu.add(
+            "q",
+            "Quitter l'application",
+            main_controllers.ExitApplicationController())
+
+        # 4. Ask user choice
+        user_choice = self._turn_menu_view.get_user_choice()
+
+        # 5. Return the controller link to user choice
+        #    to the main controller
+        return user_choice.handler
+
+    def _peer_generation(self, tournament):
+        if tournament.turn_in_progress == 1:
+            pass
+        else:
+            pass
+
+    def _set_peer_result(self, peer, tournament):
         pass
 
 
