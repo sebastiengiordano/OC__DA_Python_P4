@@ -14,7 +14,7 @@ class Players:
         players : []
             List of instance of Player
             Update at init with data come from
-            './models/database/db_players.json'.
+            'ChessTournaments/models/database/db_players.json'.
 
     Methods
     -------
@@ -40,7 +40,7 @@ class Players:
         and save them in players list.
         '''
         db_players = TinyDB(
-            './models/database/db_players.json')
+            'ChessTournaments/models/database/db_players.json')
         for serialized_player in db_players.all():
             player = Player.deserialize(serialized_player)
             Players.players.append(player)
@@ -70,7 +70,7 @@ class Players:
         '''
         query = Query()
         db_players = TinyDB(
-            './models/database/db_players.json')
+            'ChessTournaments/models/database/db_players.json')
         return [
             Player.deserialize(player) for
             player in db_players.search(query.name == name)]
@@ -78,7 +78,7 @@ class Players:
     @classmethod
     def _serialize_player(cls, player):
         db_players = TinyDB(
-            './models/database/db_players.json')
+            'ChessTournaments/models/database/db_players.json')
         return db_players.insert(player.serialize())
 
     @classmethod
@@ -86,7 +86,7 @@ class Players:
         '''Return Player instance according to its id the db_players.json.
         '''
         db_players = TinyDB(
-            './models/database/db_players.json')
+            'ChessTournaments/models/database/db_players.json')
         player_serialize = db_players.get(doc_id=id)
         return Player.deserialize(player_serialize)
 
@@ -95,7 +95,7 @@ class Players:
         '''Return the id of the player in the db_players.json.
         '''
         db_players = TinyDB(
-            './models/database/db_players.json')
+            'ChessTournaments/models/database/db_players.json')
         query = Query()
         player = Player.serialize(player)
         el = db_players.get(
@@ -140,7 +140,7 @@ class Player:
             Return a dict() of these information.
         deserialize :
         classmethod used to restore player information come from
-        './models/database/db_players.json'.
+        'ChessTournaments/models/database/db_players.json'.
 
     Special Methods
     -------
@@ -239,7 +239,7 @@ class Player:
     def deserialize(cls, player):
         '''
             classmethod used to restore player information come from
-            './models/database/db_players.json'.
+            'ChessTournaments/models/database/db_players.json'.
         '''
         name = player["name"]
         firstname = player["firstname"]

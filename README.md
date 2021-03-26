@@ -95,8 +95,13 @@ In the terminal, you could see the home menu which invit you to choose one of th
 ```sh
 cd "folder project path" & cd OC__DA_Python_P4
 ```
+2. With the following command
 ```sh
 py -m flake8 --format=html --htmldir=flake-report --exclude=.\ChessTournaments\env\
+```
+You will generate a flake8 report which will be available with the following command
+```sh
+.\flake-report\index.html
 ```
 
 
@@ -108,9 +113,6 @@ From OC__DA_Python_P4\ChessTournaments folder, you will find the following folde
 * models
 * tools
 * views
-* models
-* models
-* models
 
 ### Folder controllers
 In the folder controllers, you retreive 
