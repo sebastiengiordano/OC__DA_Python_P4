@@ -16,7 +16,8 @@ class Tournaments:
     Methods
     -------
         add_tournament(tournament_to_add):
-            Add new tournament in Tournaments.tournaments and db_tournaments.json.
+            Add new tournament in Tournaments.tournaments
+            and db_tournaments.json.
     '''
 
     tournaments = []
@@ -27,7 +28,7 @@ class Tournaments:
         '''
         db_tournament = TinyDB(
             './models/database/db_tournament.json')
-        tournaments.append(tournament_to_add)
+        cls.tournaments.append(tournament_to_add)
         return db_tournament.insert(tournament_to_add.serialize())
 
 
@@ -122,7 +123,8 @@ class Turn:
     Methods
     -------
         add_tournament(tournament_to_add):
-            Add new tournament in Tournaments.tournaments and db_tournaments.json.
+            Add new tournament in Tournaments.tournaments
+            and db_tournaments.json.
     '''
 
     @classmethod

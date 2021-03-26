@@ -18,17 +18,27 @@ class Players:
 
     Methods
     -------
+        init():
+            Deserialize all the players in db_players.json file
+            and save them in players list.
         add_player(player_to_add):
             Add new player in Players.players and db_players.json.
         is_player_exist(name):
             Classmethod which return a list which contains
             all players with the same name.
+        get_player_by_id(id):
+            Return Player instance according to its id the db_players.json.
+        get_player_id(player):
+            Return the id of the player in the db_players.json.
     '''
 
     players = []
 
     @classmethod
     def init(cls):
+        '''Deserialize all the players in db_players.json file
+        and save them in players list.
+        '''
         db_players = TinyDB(
             './models/database/db_players.json')
         for serialized_player in db_players.all():

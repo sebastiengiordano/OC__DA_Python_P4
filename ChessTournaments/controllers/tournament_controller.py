@@ -7,6 +7,7 @@ from ..views.menu_views import (
 from ..views.tournament_view import NewTournamentAddPlayerView
 from ..models.menus import Menu
 from ..models.Player import Players, Player
+from ..models.Tournament import Tournaments
 
 
 class NewTournamentController:
@@ -74,7 +75,7 @@ class NewTournamentFormController:
             return main_controllers.HomeMenuController()
 
         # 4. Save the tournament setup
-        Tournaments.add_to_database()
+        Tournaments.add_to_database(tournament)
 
         # 5. Ask user choice (start tournament / back to main menu)
         return NewTournamentStartController(tournament)
