@@ -1,4 +1,5 @@
 from tinydb import TinyDB, Query
+import random
 
 from ..tools.tools_utils import (
     is_date_format,
@@ -147,6 +148,11 @@ class Player:
         eq :
             Compare the players name, firstname, birthday, sex.
             If their equal, return true. Otherwise return False.
+        gt :
+            Compare the players rank, if their rank are different:
+                return True if this instance has greater rank
+                else return False
+            Otherwise return a random value between True or False.
         len :
             Return the size of the name + firstname + blank space.
     '''
@@ -160,14 +166,25 @@ class Player:
 
     def __eq__(self, player):
         if isinstance(player, Player):
-            equal = (
+            return (
                 self._name == player._name
                 and self._firstname == player._firstname
                 and self._birthday == player._birthday
                 and self._sex == player._sex)
-            if equal:
+        else:
+            return NotImplemented
+
+    def __gt__(self, player):
+        if isinstance(player, Player):
+            if self.rank > player.rank:
                 return True
-        return False
+            elif self.rank < player.rank:
+                return False
+            else:
+                return random.choice([True, False])
+            
+        else:
+            return NotImplemented
 
     def __len__(self):
         return len(self._name) + len(self._firstname) + 1
@@ -247,3 +264,25 @@ class Player:
         rank = player["rank"]
 
         return Player(name, firstname, birthday, sex, rank)
+
+def main():
+    p1 = Player("g","s","1 4 1977", "M", 123)
+    p2 = Player("b","M","22 0 1978", "F", 124)
+    p3 = Player("h","s","1 4 1977", "M", 123)
+    p4 = Player("i","s","1 4 1977", "M", 1230)
+    print("p1 > p2 : False\n\t {}".format(p1 > p2))
+    print("\np1 < p2 : True\n\t {}".format(p1 < p2))
+    for _ in range(10):
+        print("\np1 > p3 : Random\n\t {}".format(p1 > p3))
+    L=[p1,p2,p3,p4]
+    L.sort()
+    print("g ou h / b / i")
+    for e in L:
+        print(e.name)
+    L.sort(reverse=True)
+    print("i / b / g ou h")
+    for e in L:
+        print(e.name)
+
+if __name__ == "__main__":
+    main()
