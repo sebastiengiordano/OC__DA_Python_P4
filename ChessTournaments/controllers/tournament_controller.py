@@ -60,11 +60,12 @@ class StartTournamentController:
         peer_list = self._peer_generation()
 
         # 2. Show peer for this turn
-        self._view.show_peer(peer_list)
+        self._view.show_peer(peer_list, tournament.turn_in_progress)
 
         # 3. Ask for match results
         for peer in peer_list:
-            tournament = self._set_peer_result(peer, tournament)
+            result = self._view.ask_4_result(peer)
+            tournament = self._set_peer_result(peer, tournament, result)
 
         # 4. Update the turn number
         tournament.turn_in_progress += 1
@@ -95,35 +96,61 @@ class StartTournamentController:
     def _peer_generation(self, tournament):
         # First turn
         if tournament.turn_in_progress == 1:
-            # Sort all players based on their rank.
+            return self._peer_generation_first_turn(self, tournament)
+        # Next turns
+        else:
+            return self._peer_generation_others_turns(self, tournament)
+
+    def _peer_generation_first_turn(self, tournament):
             players_list = []
+            peer = []
+            # Sort all players based on their rank.
             for player_id in tournament.players:
                 players_list.append(Players.get_player_by_id(player_id))
             players_list.sort(reverse=True)
             # Divide the players into two halves
-            number_of_peer = int(len(players_list) / 2)
+            number_of_peer = len(players_list) // 2
             odd_number_of_players = len(players_list) % 2
-            peer = []
             for index in range(number_of_peer):
                 peer.append((players_list[index], players_list[index + number_of_peer]))
             if odd_number_of_players:
-                peer.append(players_list[-1])
+                peer.append(players_list[-1], "")
             return peer
-        # Next turn, sort all the players according to their total number of points.
-        # Match player 1 with player 2, player 3 with player 4, and so on. 
-        else:
-            # If several players have the same number of points, sort them according to their rank.
-            # If these players have already played together before, pair them with following player.
-            pass
 
-    def _set_peer_result(self, peer, tournament):
+    def _peer_generation_others_turns(self, tournament):
+        players_list = []
+        peer = []
+        # Sort all the players according to their total number of points.
+        # If several players have the same number of points,
+        # sort them according to their rank.
+        for player_id in tournament.players:
+            player = Players.get_player_by_id(player_id)
+            player_score = tournament.get_player_score(player)
+            players_list.append(player, player_score)
+        players_list.sort(key = lambda x: (x[1], x[0]), reverse=True)
+
+        tournament.update_players_opponant()
+        # Match player 1 with player 2, player 3 with player 4, and so on.
+        # If these players have already played together before,
+        # pair them with following player.
+        number_of_peer = len(players_list) // 2
+        odd_number_of_players = len(players_list) % 2
+        for _ in range(number_of_peer + odd_number_of_players):
+            player_1 = players_list.pop(0)
+            opponent_find = False
+            for player_2 in players_list:
+                players_opponant = tournament.get_players_opponant(player_1)
+                if not player_2 in players_opponant:
+                    peer.append(player_1, player_2)
+                    players_list.remove(player_2)
+                    opponent_find = True
+                    break
+            if not opponent_find:
+                peer.append(player_1, "")
+
+    def _set_peer_result(self, peer, tournament, result):
         pass
 
-    def _sort_player_list(self, player_list):
-        for index in range(len(player_list)):
-
-            for player in player_list
-        return player_list
 
 class NewTournamentFormController:
 

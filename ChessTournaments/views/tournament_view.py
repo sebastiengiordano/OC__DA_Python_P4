@@ -278,17 +278,34 @@ class NewTournamentFormView:
 
 class StartTournamentView:
 
-    def show_peer(self, peer_list):
+    def show_peer(self, peer_list, turn_number):
+        width = 0
+        for player_1, player_2 in peer_list:
+            width_1 = len(
+                f"\n{player_1.name} {player_1.firstname} ("
+                + datetime_to_str(player_1.birthday) + ")") + 2
+            width_2 = len(
+                f"\n{player_2.name} {player_2.firstname} ("
+                + datetime_to_str(player_2.birthday) + ")") + 2
+            if width_1 > width:
+                width = width_1
+            if width_2 > width:
+                width = width_2
+
         menu_frame, menu_label = view_utils.menu_frame_design(
-            "Liste des pairs pour ce tour",
-            0)
+            f"Liste des pairs pour le tour n°{turn_number}",
+            width)
         print("\n" + menu_frame)
         print(menu_label)
-        print(menu_frame)
-        for peer in peer_list:
+        print(menu_frame, end="")
+        for player_1, player_2 in peer_list:
             print(
-                text_left_side_offset_view
-                + f"{peer[0]} VS {peer[1]}")
+                (f"\n{player_1.name} {player_1.firstname} ("
+                + datetime_to_str(player_1.birthday) + ")").center(width)
+                + "\n" + "VS".center(width)
+                + (f"\n{player_2.name} {player_2.firstname} ("
+                + datetime_to_str(player_2.birthday) + ")").center(width)
+                )
         print(menu_frame)
 
     def get_user_choice(self):
