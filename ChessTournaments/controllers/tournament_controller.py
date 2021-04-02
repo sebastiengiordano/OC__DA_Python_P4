@@ -152,6 +152,7 @@ class StartTournamentController:
         pass
 
 
+
 class NewTournamentFormController:
 
     def __init__(self):
