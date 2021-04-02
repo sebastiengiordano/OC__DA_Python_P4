@@ -282,13 +282,19 @@ class StartTournamentView:
         menu_frame, menu_label = view_utils.menu_frame_design(
             "Liste des pairs pour ce tour",
             0)
+        width = len(menu_frame)
         print("\n" + menu_frame)
         print(menu_label)
-        print(menu_frame)
-        for peer in peer_list:
+        print(menu_frame, end="")
+        for player_1, player_2 in peer_list:
             print(
-                text_left_side_offset_view
-                + f"{peer[0]} VS {peer[1]}")
+                f"\n{player_1.name} {player_1.firstname} ("
+                + datetime_to_str(player_1.birthday)
+                + ")\nVS"
+                + f"\n{player_2.name} {player_2.firstname} ("
+                + datetime_to_str(player_2.birthday)
+                ")"
+                )
         print(menu_frame)
 
     def get_user_choice(self):

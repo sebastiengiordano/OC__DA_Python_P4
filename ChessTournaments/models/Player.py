@@ -270,19 +270,30 @@ def main():
     p2 = Player("b","M","22 0 1978", "F", 124)
     p3 = Player("h","s","1 4 1977", "M", 123)
     p4 = Player("i","s","1 4 1977", "M", 1230)
-    print("p1 > p2 : False\n\t {}".format(p1 > p2))
-    print("\np1 < p2 : True\n\t {}".format(p1 < p2))
-    for _ in range(10):
-        print("\np1 > p3 : Random\n\t {}".format(p1 > p3))
-    L=[p1,p2,p3,p4]
-    L.sort()
-    print("g ou h / b / i")
-    for e in L:
-        print(e.name)
-    L.sort(reverse=True)
-    print("i / b / g ou h")
-    for e in L:
-        print(e.name)
+    p5 = Player("g","s","1 4 1977", "M", 123)
+    # print("p1 > p2 : False\n\t {}".format(p1 > p2))
+    # print("\np1 < p2 : True\n\t {}".format(p1 < p2))
+    # for _ in range(10):
+    #     print("\np1 > p3 : Random\n\t {}".format(p1 > p3))
+    L = [(p1,3),(p2,3),(p3,3),(p4,2)]
+    for _ in range(5):
+        print(f"\n\nTest {_}:")
+        L.sort(key = lambda x: (x[1], x[0]), reverse=True)
+        print("b / g ou h / i")
+        for e,s in L:
+            print(f" {e.name}", end=" /")
+
+    L2 = [p1, p2, p3, p4]
+    L3 = [p1, p5]
+    
+    for p in L3:
+        print()
+        if p in L2:
+            print(True)
+        else:
+            print(False)
+    print(L2[0])
+    print(L3[0])
 
 if __name__ == "__main__":
     main()

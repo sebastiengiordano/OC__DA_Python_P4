@@ -85,12 +85,36 @@ class Tournament:
         _turns : []
             List which contains each turn of this tournaments
         turn_in_progress : int
-        Indicate the turn which will be played.
+            Indicate the turn which will be played.
+        score_by_player : []
+            List which contains lists for each players with their score.
+            Update after each turn (or at init to resume tournament)
+        players_opponant : {}
+            Dict which contains, for each players of this tournament,
+            all players already faced.
 
     Methods
     -------
-    time_control_type :
+    time_control_type() :
         Return the time control type of this tournament.
+    serialize() :
+        Method used to cast tournament information in str or int type.
+        Return a dict() of these informations.
+    deserialize(serialized_tournament) :
+        classmethod used to restore tournament information come from
+        'ChessTournaments/models/database/db_tournaments.json'.
+    query_filter(tournament):
+        Return a Query objet to search a specific tournament in a TinyDB.
+    update_scores():
+        For each players of this tournament, fill the
+        score_by_player list with the Player instance and its total score.
+    get_player_score(self, player_to_find):
+        Return the current score of a player.
+    get_players_opponant(player):
+        Return the list of the players that this player has already faced.
+    update_players_opponant(self):
+        Update the players_opponant dictionary according to all
+        matchs already performed.
     '''
 
     def __init__(self):
@@ -104,6 +128,7 @@ class Tournament:
         self.description = "Il va falloir écrire quelque chose d'ultra long pour tester la découpe du message. En plus il faudra que ça veuille dire quelque chose cette histoire, non ? De plus, il semblerait que le message s'affiche bien dans son cadre ! C'est vraiment une très très bonne nouvelle. J'espère que le responsable du tournoi en sera ravi."
         self._turns = []
         self.turn_in_progress = 1
+        self.score_by_player = []
 
         self._time_control_type = {
             "1": "Bullet",
@@ -176,6 +201,64 @@ class Tournament:
             & (query.description == tournament.description))
         return tournament_filter
 
+    def update_scores(self):
+        '''For each players of this tournament, fill the
+        score_by_player list with the Player instance and its total score.
+        '''
+        self.score_by_player = []
+        for player_id in self.players:
+            player = Players.get_player_by_id(player_id)
+            self.score_by_player.append([player, 0])
+        for turn in self._turns:
+             for turn_players in turn.matchs:
+                 for player, score in turn_players:
+                     if score > 0:
+                        self._update_score_by_player(player, score)
+
+    def _update_score_by_player(self, player_to_update, score_to_add):
+        '''Update the score of a player in the score_by_player list.
+        '''
+        for index, (player, score) in enumerate(self.score_by_player):
+            if player_to_update == player:
+                self.score_by_player[index][1] += score_to_add
+                break
+
+    def get_player_score(self, player_to_find):
+        '''Return the current score of a player.
+        '''
+        for player, score in self.score_by_player:
+            if player == player_to_find:
+                return score
+
+    def get_players_opponant(self, player):
+        '''Return the list of the players that
+        this player has already faced.
+        '''
+        return players_opponant.get(player, [])
+
+    def update_players_opponant(self):
+        '''Update the players_opponant dictionary according to all
+        matchs already performed.
+        '''
+        # Initialize the players_opponant dict with
+        # empty list for each players
+        for player_id in self.players:
+            player = Players.get_player_by_id(player_id)
+            if not player in players_opponant:
+                players_opponant[player] = []
+            else:
+                # Initialization already performed
+                break
+
+        for turn in self._turns:
+             for turn_players in turn.matchs:
+                player_1 = turn_players[0][0]
+                player_2 = turn_players[1][0]
+                if not player_1 in players_opponant.get(player_2, "")
+                    players_opponant[player_1].append(player_2)
+                    players_opponant[player_2].append(player_1)
+
+
 class Turn:
     '''Class which represent one turn of a tournament.
 
@@ -185,6 +268,11 @@ class Turn:
             Indicate the current round.
         matchs : []
             List which contains each match of this turn
+                - a match is a tuple which contains two list
+                - each list constains: 
+                    a instance of player
+                    its score for this match
+
 
     Methods
     -------
