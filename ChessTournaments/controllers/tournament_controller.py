@@ -2,7 +2,8 @@ from . import main_controllers
 from ..views.tournament_view import NewTournamentFormView, StartTournamentView
 from ..views.menu_views import (
     NewTournamentStartMenuView,
-    NewTournamentMenuView
+    NewTournamentMenuView,
+    TurnMenuView
     )
 from ..views.tournament_view import NewTournamentAddPlayerView
 from ..models.menus import Menu
@@ -53,25 +54,27 @@ class StartTournamentController:
         self.menu = Menu()
         self._tournament = tournament
         self._view = StartTournamentView()
-        self._turn_menu_view = TurnMenuView(self.menu, tournament.turn_in_progress)
+        self._turn_menu_view = TurnMenuView(
+            self.menu, tournament.turn_in_progress)
 
     def __call__(self):
         # 1. Peer generation
         peer_list = self._peer_generation()
 
         # 2. Show peer for this turn
-        self._view.show_peer(peer_list, tournament.turn_in_progress)
+        self._view.show_peer(peer_list, self._tournament.turn_in_progress)
 
         # 3. Ask for match results
         for peer in peer_list:
             result = self._view.ask_4_result(peer)
-            tournament = self._set_peer_result(peer, tournament, result)
+            self._tournament = self._set_peer_result(
+                peer, self._tournament, result)
 
         # 4. Update the turn number
-        tournament.turn_in_progress += 1
+        self._tournament.turn_in_progress += 1
 
         # 5. Save the tournament
-        Tournaments.update_tournament(tournament)
+        Tournaments.update_tournament(self._tournament)
 
         self.menu.add(
             "s",
@@ -102,20 +105,21 @@ class StartTournamentController:
             return self._peer_generation_others_turns(self, tournament)
 
     def _peer_generation_first_turn(self, tournament):
-            players_list = []
-            peer = []
-            # Sort all players based on their rank.
-            for player_id in tournament.players:
-                players_list.append(Players.get_player_by_id(player_id))
-            players_list.sort(reverse=True)
-            # Divide the players into two halves
-            number_of_peer = len(players_list) // 2
-            odd_number_of_players = len(players_list) % 2
-            for index in range(number_of_peer):
-                peer.append((players_list[index], players_list[index + number_of_peer]))
-            if odd_number_of_players:
-                peer.append(players_list[-1], "")
-            return peer
+        players_list = []
+        peer = []
+        # Sort all players based on their rank.
+        for player_id in tournament.players:
+            players_list.append(Players.get_player_by_id(player_id))
+        players_list.sort(reverse=True)
+        # Divide the players into two halves
+        number_of_peer = len(players_list) // 2
+        odd_number_of_players = len(players_list) % 2
+        for index in range(number_of_peer):
+            peer.append(
+                (players_list[index], players_list[index + number_of_peer]))
+        if odd_number_of_players:
+            peer.append(players_list[-1], "")
+        return peer
 
     def _peer_generation_others_turns(self, tournament):
         players_list = []
@@ -127,7 +131,7 @@ class StartTournamentController:
             player = Players.get_player_by_id(player_id)
             player_score = tournament.get_player_score(player)
             players_list.append(player, player_score)
-        players_list.sort(key = lambda x: (x[1], x[0]), reverse=True)
+        players_list.sort(key=lambda x: (x[1], x[0]), reverse=True)
 
         tournament.update_players_opponant()
         # Match player 1 with player 2, player 3 with player 4, and so on.
@@ -140,7 +144,7 @@ class StartTournamentController:
             opponent_find = False
             for player_2 in players_list:
                 players_opponant = tournament.get_players_opponant(player_1)
-                if not player_2 in players_opponant:
+                if player_2 not in players_opponant:
                     peer.append(player_1, player_2)
                     players_list.remove(player_2)
                     opponent_find = True
@@ -149,8 +153,7 @@ class StartTournamentController:
                 peer.append(player_1, "")
 
     def _set_peer_result(self, peer, tournament, result):
-        pass
-
+        return tournament
 
 
 class NewTournamentFormController:
@@ -172,7 +175,7 @@ class NewTournamentFormController:
             return main_controllers.HomeMenuController()
 
         # 4. Save the tournament setup
-        Tournaments.add_to_database(tournament)
+        Tournaments.add_tournament(tournament)
 
         # 5. Ask user choice (start tournament / back to main menu)
         return NewTournamentStartController(tournament)

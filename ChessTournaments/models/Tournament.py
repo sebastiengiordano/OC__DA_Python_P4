@@ -34,7 +34,8 @@ class Tournaments:
         db_tournaments = TinyDB(
             'ChessTournaments/models/database/db_tournaments.json')
         for serialized_tournament in db_tournaments.all():
-            tournaments.append(Tournanent.deserialize(serialized_tournament))
+            cls.tournaments.append(
+                Tournament.deserialize(serialized_tournament))
 
     @classmethod
     def add_tournament(cls, tournament_to_add):
@@ -42,7 +43,7 @@ class Tournaments:
         '''
         db_tournament = TinyDB(
             './models/database/db_tournament.json')
-        Tournaments.tournaments.append(tournament_to_add)
+        cls.tournaments.append(tournament_to_add)
         return db_tournament.insert(tournament_to_add.serialize())
 
     @classmethod
@@ -129,6 +130,7 @@ class Tournament:
         self._turns = []
         self.turn_in_progress = 1
         self.score_by_player = []
+        self.players_opponant = {}
 
         self._time_control_type = {
             "1": "Bullet",
@@ -210,9 +212,9 @@ class Tournament:
             player = Players.get_player_by_id(player_id)
             self.score_by_player.append([player, 0])
         for turn in self._turns:
-             for turn_players in turn.matchs:
-                 for player, score in turn_players:
-                     if score > 0:
+            for turn_players in turn.matchs:
+                for player, score in turn_players:
+                    if score > 0:
                         self._update_score_by_player(player, score)
 
     def _update_score_by_player(self, player_to_update, score_to_add):
@@ -234,7 +236,7 @@ class Tournament:
         '''Return the list of the players that
         this player has already faced.
         '''
-        return players_opponant.get(player, [])
+        return self.players_opponant.get(player, [])
 
     def update_players_opponant(self):
         '''Update the players_opponant dictionary according to all
@@ -244,19 +246,19 @@ class Tournament:
         # empty list for each players
         for player_id in self.players:
             player = Players.get_player_by_id(player_id)
-            if not player in players_opponant:
-                players_opponant[player] = []
+            if player not in self.players_opponant:
+                self.players_opponant[player] = []
             else:
                 # Initialization already performed
                 break
 
         for turn in self._turns:
-             for turn_players in turn.matchs:
+            for turn_players in turn.matchs:
                 player_1 = turn_players[0][0]
                 player_2 = turn_players[1][0]
-                if not player_1 in players_opponant.get(player_2, "")
-                    players_opponant[player_1].append(player_2)
-                    players_opponant[player_2].append(player_1)
+                if player_1 not in self.players_opponant.get(player_2, ""):
+                    self.players_opponant[player_1].append(player_2)
+                    self.players_opponant[player_2].append(player_1)
 
 
 class Turn:
@@ -269,7 +271,7 @@ class Turn:
         matchs : []
             List which contains each match of this turn
                 - a match is a tuple which contains two list
-                - each list constains: 
+                - each list constains:
                     a instance of player
                     its score for this match
 

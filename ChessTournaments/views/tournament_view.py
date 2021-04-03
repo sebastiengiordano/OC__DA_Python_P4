@@ -197,7 +197,7 @@ class NewTournamentFormView:
                 + " de valeur pour choisir la valeur par défaut.)")
             user_input = input(input_label)
             if user_input == "":
-                break
+                return tournament.numbers_of_turns
             try:
                 user_input = int(user_input)
                 return user_input
@@ -279,18 +279,7 @@ class NewTournamentFormView:
 class StartTournamentView:
 
     def show_peer(self, peer_list, turn_number):
-        width = 0
-        for player_1, player_2 in peer_list:
-            width_1 = len(
-                f"\n{player_1.name} {player_1.firstname} ("
-                + datetime_to_str(player_1.birthday) + ")") + 2
-            width_2 = len(
-                f"\n{player_2.name} {player_2.firstname} ("
-                + datetime_to_str(player_2.birthday) + ")") + 2
-            if width_1 > width:
-                width = width_1
-            if width_2 > width:
-                width = width_2
+        width = self._peer_lenght(peer_list)
 
         menu_frame, menu_label = view_utils.menu_frame_design(
             f"Liste des pairs pour le tour n°{turn_number}",
@@ -300,11 +289,13 @@ class StartTournamentView:
         print(menu_frame, end="")
         for player_1, player_2 in peer_list:
             print(
-                (f"\n{player_1.name} {player_1.firstname} ("
-                + datetime_to_str(player_1.birthday) + ")").center(width)
+                (
+                    f"\n{player_1.name} {player_1.firstname} ("
+                    + datetime_to_str(player_1.birthday) + ")").center(width)
                 + "\n" + "VS".center(width)
-                + (f"\n{player_2.name} {player_2.firstname} ("
-                + datetime_to_str(player_2.birthday) + ")").center(width)
+                + (
+                    f"\n{player_2.name} {player_2.firstname} ("
+                    + datetime_to_str(player_2.birthday) + ")").center(width)
                 )
         print(menu_frame)
 
@@ -318,6 +309,60 @@ class StartTournamentView:
             if choice in self.menu:
                 # Return the user choice
                 return self.menu[choice]
+
+    def ask_4_result(self, peer):
+        width = self._peer_lenght(peer) + len(" 1 :  gagne")
+        while True:
+            menu_frame, menu_label = view_utils.menu_frame_design(
+                "Résultat du match",
+                width)
+            print("\n" + menu_frame)
+            print(menu_label)
+            print(menu_frame)
+            for player_1, player_2 in peer_list:
+                print(
+                    (
+                        f"\n{player_1.name} {player_1.firstname} ("
+                        + datetime_to_str(player_1.birthday) + ")").center(width)
+                    + "\n" + "VS".center(width)
+                    + (
+                        f"\n{player_2.name} {player_2.firstname} ("
+                        + datetime_to_str(player_2.birthday) + ")").center(width)
+                    )
+            print(menu_frame)
+            print(
+                f" 1 : {player_1.name} {player_1.firstname} ("
+                + datetime_to_str(player_1.birthday) + ")"
+                + " gagne\n"
+                f" 2 : {player_2.name} {player_2.firstname} ("
+                + datetime_to_str(player_2.birthday) + ")"
+                + " gagne\n"
+                " 3 : Egalité"
+            )
+            print(menu_frame)
+            user_input = input(input_label)
+            if user_input == "1":
+                return (1, 0)
+            elif user_input == "2":
+                return (0, 1)
+            elif user_input == "3":
+                return (0.5, 0.5)
+
+
+    def _peer_lenght(self, peer):
+        width = 0
+        for player_1, player_2 in peer_list:
+            width_1 = len(
+                f"\n{player_1.name} {player_1.firstname} ("
+                + datetime_to_str(player_1.birthday) + ")") + 2
+            width_2 = len(
+                f"\n{player_2.name} {player_2.firstname} ("
+                + datetime_to_str(player_2.birthday) + ")") + 2
+            if width_1 > width:
+                width = width_1
+            if width_2 > width:
+                width = width_2
+        return width
 
 
 class NewTournamentAddPlayerView:

@@ -98,7 +98,7 @@ cd "folder project path" & cd OC__DA_Python_P4
 ```sh
 py -m flake8 --format=html --htmldir=flake-report --exclude=.\ChessTournaments\env\
 ```
-You will generate a flake8 report which will be available with the following command
+You will generate a flake8 report, which will be available in the following folder
 ```sh
 .\flake-report\index.html
 ```
