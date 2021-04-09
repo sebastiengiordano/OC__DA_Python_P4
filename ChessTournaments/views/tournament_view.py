@@ -153,10 +153,10 @@ class NewTournamentFormView:
                 + text_left_side_offset_view + first_indent_view
                 + "(appuyer sur la touche \"Entrée\" sans renseigner"
                 + "\n" + text_left_side_offset_view + first_indent_view
-                + " de valeur pour choisir la date d'aujourd'hui.)"
+                + " de valeur pour choisir la date d'aujourd'hui.\n)"
                 + input_label)
             if date == "":
-                date = datetime.date.today()
+                return datetime.date.today()
             else:
                 date = is_date_format(date)
                 if isinstance(date, datetime.date):
@@ -279,39 +279,41 @@ class NewTournamentFormView:
 class StartTournamentView:
 
     def show_peer(self, peer_list, turn_number):
-        width = self._peer_lenght(peer_list)
+        width = self._peers_lenght(peer_list)
 
         menu_frame, menu_label = view_utils.menu_frame_design(
             f"Liste des pairs pour le tour n°{turn_number}",
             width)
+        if len(menu_frame) > width:
+            width = len(menu_frame)
         print("\n" + menu_frame)
         print(menu_label)
         print(menu_frame, end="")
         for player_1, player_2 in peer_list:
-            print(
-                (
-                    f"\n{player_1.name} {player_1.firstname} ("
-                    + datetime_to_str(player_1.birthday) + ")").center(width)
-                + "\n" + "VS".center(width)
-                + (
-                    f"\n{player_2.name} {player_2.firstname} ("
-                    + datetime_to_str(player_2.birthday) + ")").center(width)
-                )
+            player_one =  (
+                f"{player_1.name} {player_1.firstname} ("
+                + datetime_to_str(player_1.birthday) + ")")
+            if not player_2 == "":
+                player_two = (
+                    f"{player_2.name} {player_2.firstname} ("
+                    + datetime_to_str(player_2.birthday) + ")")
+                print(
+                    "\n" + player_one.center(width)
+                    + "\n" + "VS".center(width)
+                    + "\n" + player_two.center(width)
+                    + "\n"
+                    )
+            else:
+                print(
+                    "\n" + player_one.center(width)
+                    + "\n" +
+                    "ne joue pas ce tour-ci.".center(width)
+                    )
+
         print(menu_frame)
 
-    def get_user_choice(self):
-        while True:
-            # Display the menu to user
-            self._display_menu()
-            # Ask the user its choice
-            choice = self._get_user_key()
-            # Validate the user choice
-            if choice in self.menu:
-                # Return the user choice
-                return self.menu[choice]
-
     def ask_4_result(self, peer):
-        width = self._peer_lenght(peer) + len(" 1 :  gagne")
+        width = self._peers_lenght((peer,)) + len(" 1 :  gagne")
         while True:
             menu_frame, menu_label = view_utils.menu_frame_design(
                 "Résultat du match",
@@ -319,15 +321,17 @@ class StartTournamentView:
             print("\n" + menu_frame)
             print(menu_label)
             print(menu_frame)
-            for player_1, player_2 in peer_list:
+            for player_1, player_2 in (peer,):
+                player_one =  (
+                    f"{player_1.name} {player_1.firstname} ("
+                    + datetime_to_str(player_1.birthday) + ")")
+                player_two = (
+                    f"{player_2.name} {player_2.firstname} ("
+                    + datetime_to_str(player_2.birthday) + ")")
                 print(
-                    (
-                        f"\n{player_1.name} {player_1.firstname} ("
-                        + datetime_to_str(player_1.birthday) + ")").center(width)
+                    player_one.center(width)
                     + "\n" + "VS".center(width)
-                    + (
-                        f"\n{player_2.name} {player_2.firstname} ("
-                        + datetime_to_str(player_2.birthday) + ")").center(width)
+                    + "\n" + player_two.center(width)
                     )
             print(menu_frame)
             print(
@@ -366,68 +370,56 @@ class StartTournamentView:
             print("\n /**                 n pour non. **\\")
 
     def _show_peers_results(self, peer_list, results, turn_number):
-        width = self._peer_lenght(peer_list)
+        width = self._peers_lenght(peer_list)
         menu_frame, menu_label = view_utils.menu_frame_design(
             f"Résultat des matchs du tour n°{turn_number}",
             width)
+        if len(menu_frame) > width:
+            width = len(menu_frame)
         print("\n" + menu_frame)
         print(menu_label)
         print(menu_frame, end="")
         for (player_1, player_2), (r1, r2) in zip(peer_list, results):
+            player_one =  (
+                f"{player_1.name} {player_1.firstname} ("
+                + datetime_to_str(player_1.birthday) + ")")
+            if not player_2 == "":
+                player_two = (
+                    f"{player_2.name} {player_2.firstname} ("
+                    + datetime_to_str(player_2.birthday) + ")")
             if r2 == 0.5:
                 print(
-                    (
-                    f"\n{player_1.name} {player_1.firstname} ("
-                    + datetime_to_str(player_1.birthday) + ")").center(width)
-                + "\n" + "VS".center(width)
-                + (
-                    f"\n{player_2.name} {player_2.firstname} ("
-                    + datetime_to_str(player_2.birthday) + ")").center(width)
+                    "\n" + player_one.center(width)
+                    + "\n" + "VS".center(width)
+                    + "\n" + player_two.center(width)
                 )
                 print("Egalité".center(width))
             elif r1 == 1:
-                print(
-                    f"\n{player_1.name} {player_1.firstname} ("
-                    + datetime_to_str(player_1.birthday) + ")")
+                print("\n" + player_one.center(width))
                 print("gagne".center(width))
             else:
-                print(
-                    f"\n{player_2.name} {player_2.firstname} ("
-                    + datetime_to_str(player_2.birthday) + ")")
+                print("\n" + player_two.center(width))
                 print("gagne".center(width))
         print(menu_frame)
 
-    def _peer_lenght(self, peer):
+    def _peers_lenght(self, peer):
         width = 0
-        for player_1, player_2 in peer_list:
+        for player_1, player_2 in peer:
             width_1 = len(
-                f"\n{player_1.name} {player_1.firstname} ("
+                f"{player_1.name} {player_1.firstname} ("
                 + datetime_to_str(player_1.birthday) + ")") + 2
-            width_2 = len(
-                f"\n{player_2.name} {player_2.firstname} ("
-                + datetime_to_str(player_2.birthday) + ")") + 2
             if width_1 > width:
                 width = width_1
-            if width_2 > width:
-                width = width_2
+            if not player_2 == "":
+                width_2 = len(
+                    f"{player_2.name} {player_2.firstname} ("
+                    + datetime_to_str(player_2.birthday) + ")") + 2
+                if width_2 > width:
+                    width = width_2
         return width
 
 
 class NewTournamentAddPlayerView:
-
-    def __init__(self):
-        self._players = Players.players
-        self._view = AddPlayerView()
-
-    def __call__(self):
-        # 1. Ask for player name
-        name = self._view.get_player_name()
-
-        # 2. Check if this name is already in Players.players list
-        players_with_same_name = Players.is_player_exist(name)
-        if players_with_same_name == []:
-            # 2.1 This is a new play, add to the list
-            self._view
 
     def get_player_name(self, numbers_of_players):
         while True:
@@ -551,3 +543,49 @@ class NewTournamentAddPlayerView:
                     player_choice.isdigit()
                     and int(player_choice) in range(1, len(players) + 1)):
                 return int(player_choice) - 1
+
+
+class TournamentListView(NewTournamentFormView):
+
+    def show_tournaments(self, tournaments_list):
+        self.number = 0
+        for tournament in tournaments_list:
+            self.number += 1
+            self._tournament_summary(tournament, self.number)
+
+    def get_tournament_choice(self):
+        choice_list = [str(i) for i in range(1, self.number + 1)]
+        while True:
+            # Ask the user its choice
+            print(
+                "Veuillez indiquer le numéro du tournoi choisi.")
+            choice = input(input_label)
+            # Validate the user choice
+            if choice in choice_list:
+                # Return the user choice
+                return int(choice) - 1
+
+    def _tournament_summary(self, tournament, number):
+        max_lenght = self.max_lenght(tournament)
+        menu_frame, menu_label = view_utils.menu_frame_design(
+            f"Résumé du tournoi n°{number}",
+            max_lenght)
+        print("\n" + menu_frame)
+        print(menu_label)
+        print(menu_frame)
+        print(
+            text_left_side_offset_view
+            + f"Nom  : {tournament.name}")
+        print(
+            text_left_side_offset_view
+            + f"Lieu : {tournament.location}")
+        self._show_tournament_date(tournament)
+        print(
+            text_left_side_offset_view
+            + f"Nombre de tours : {tournament.numbers_of_turns}")
+        self._show_tournament_players(tournament, max_lenght)
+        print(
+            text_left_side_offset_view
+            + f"Contrôle du temps : {tournament.time_control}")
+        self._show_tournament_description(tournament, max_lenght)
+        print(menu_frame)

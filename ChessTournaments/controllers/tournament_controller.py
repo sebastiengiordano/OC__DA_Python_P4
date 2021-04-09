@@ -1,11 +1,16 @@
 from . import main_controllers
-from ..views.tournament_view import NewTournamentFormView, StartTournamentView
+from ..views.tournament_view import (
+    NewTournamentFormView,
+    StartTournamentView,
+    NewTournamentAddPlayerView,
+    TournamentListView
+    )
 from ..views.menu_views import (
     NewTournamentStartMenuView,
     NewTournamentMenuView,
-    TurnMenuView
+    TurnMenuView,
+    ChoiceTournamentMenuView
     )
-from ..views.tournament_view import NewTournamentAddPlayerView
 from ..models.menus import Menu
 from ..models.Player import Players, Player
 from ..models.Tournament import Tournaments
@@ -42,10 +47,46 @@ class NewTournamentController:
 class ChoiceTournamentController:
 
     def __init__(self):
-        pass
+        self.menu = Menu()
+        self._view = ChoiceTournamentMenuView(self.menu)
 
     def __call__(self):
-        pass
+        # 1. Generate the choice tournament menu
+        self.menu.add(
+            "auto",
+            "Afficher la liste des tournois",
+            TournamentListController())
+        self.menu.add(
+            "auto",
+            "Afficher la liste des tournois en cours",
+            TournamentListController("In_Progress"))
+        self.menu.add(
+            "auto",
+            "Afficher la liste des tournois par nom",
+            TournamentListController("Name"))
+        self.menu.add(
+            "auto",
+            "Afficher la liste des tournois par lieu",
+            TournamentListController("Location"))
+        self.menu.add(
+            "auto",
+            "Afficher la liste des tournois par date",
+            TournamentListController("Date"))
+        self.menu.add(
+            "h",
+            "Allez au menu d'acceuil",
+            main_controllers.HomeMenuController())
+        self.menu.add(
+            "q",
+            "Quitter l'application",
+            main_controllers.ExitApplicationController())
+
+        # 2. Ask user choice
+        user_choice = self._view.get_user_choice()
+
+        # 3. Return the controller link to user choice
+        #    to the main controller
+        return user_choice.handler
 
 
 class StartTournamentController:
@@ -58,18 +99,21 @@ class StartTournamentController:
             self.menu, tournament.turn_in_progress)
 
     def __call__(self):
-        # 1. Peer generation
-        peer_list = self._peer_generation()
-
-        # 2. Show peer for this turn
-        self._view.show_peer(peer_list, self._tournament.turn_in_progress)
-
-        # 3. Ask for match results
         while True:
+            # 1. Peer generation
+            peer_list = self._peer_generation(self._tournament)
+
+            # 2. Show peer for this turn
+            self._view.show_peer(peer_list, self._tournament.turn_in_progress)
+
+            # 3. Ask for match results
             results = []
             # 3.1 Update results
             for peer in peer_list:
-                results.append(self._view.ask_4_result(peer))
+                if peer[1] == "":
+                    results.append((1,0))
+                else:
+                    results.append(self._view.ask_4_result((peer)))
             # 3.2 Ask for results validation
             if self._view.get_user_validation(
                     peer_list, results, self._tournament.turn_in_progress):
@@ -77,39 +121,39 @@ class StartTournamentController:
                 self._tournament.save_peers_results(
                     peer_list, results)
 
-        # 4. Update the turn number
-        self._tournament.turn_in_progress += 1
+            # 4. Update the turn number
+            self._tournament.turn_in_progress += 1
 
-        # 5. Save the tournament
-        Tournaments.update_tournament(self._tournament)
+            # 5. Save the tournament
+            Tournaments.update_tournament(self._tournament)
 
-        self.menu.add(
-            "s",
-            "Lancer le tour suivant",
-            StartTournamentController(self.tournament))
-        self.menu.add(
-            "h",
-            "Allez au menu d'acceuil",
-            main_controllers.HomeMenuController())
-        self.menu.add(
-            "q",
-            "Quitter l'application",
-            main_controllers.ExitApplicationController())
+            self.menu.add(
+                "s",
+                "Lancer le tour suivant",
+                StartTournamentController(self.tournament))
+            self.menu.add(
+                "h",
+                "Allez au menu d'acceuil",
+                main_controllers.HomeMenuController())
+            self.menu.add(
+                "q",
+                "Quitter l'application",
+                main_controllers.ExitApplicationController())
 
-        # 4. Ask user choice
-        user_choice = self._turn_menu_view.get_user_choice()
+            # 4. Ask user choice
+            user_choice = self._turn_menu_view.get_user_choice()
 
-        # 5. Return the controller link to user choice
-        #    to the main controller
-        return user_choice.handler
+            # 5. Return the controller link to user choice
+            #    to the main controller
+            return user_choice.handler
 
     def _peer_generation(self, tournament):
         # First turn
         if tournament.turn_in_progress == 1:
-            return self._peer_generation_first_turn(self, tournament)
+            return self._peer_generation_first_turn(tournament)
         # Next turns
         else:
-            return self._peer_generation_others_turns(self, tournament)
+            return self._peer_generation_others_turns(tournament)
 
     def _peer_generation_first_turn(self, tournament):
         players_list = []
@@ -125,7 +169,7 @@ class StartTournamentController:
             peer.append(
                 (players_list[index], players_list[index + number_of_peer]))
         if odd_number_of_players:
-            peer.append(players_list[-1], "")
+            peer.append((players_list[-1], ""))
         return peer
 
     def _peer_generation_others_turns(self, tournament):
@@ -158,9 +202,6 @@ class StartTournamentController:
                     break
             if not opponent_find:
                 peer.append(player_1, "")
-
-    def _set_peer_result(self, peer, tournament, result):
-        return tournament
 
 
 class NewTournamentFormController:
@@ -258,3 +299,110 @@ def new_tournament_add_player_controller():
             # 2.2.5 Add to the tournament players list and to db_players.json
             player = Player(name, firstname, birthday, sex, rank)
             _players_list.append(Players.add_player(player))
+
+
+class TournamentListController:
+
+    def __init__(self, list_filter=None):
+        self.menu = Menu()
+        self._menu_view = ChoiceTournamentMenuView(self.menu)
+        self._view = TournamentListView()
+        if list_filter == "In_Progress":
+            self.tournaments_list = self._tournaments_in_progress()
+        elif list_filter == "Name":
+            self.tournaments_list = self._sort_by_name()
+        elif list_filter == "Location":
+            self.tournaments_list = self._sort_by_location()
+        elif list_filter == "Date":
+            self.tournaments_list = self._sort_by_date()
+        else:
+            self.tournaments_list = Tournaments.tournaments
+
+    def __call__(self):
+        # 1. Show the tournaments list
+        self._view.show_tournaments(self.tournaments_list)
+
+        # 2. Ask tournament choice
+        choice = self._view.get_tournament_choice()
+
+        # 3. Generate the tournament start menu
+        self.menu.add(
+            "auto",
+            f"Lancer le tournoi n°{choice + 1}",
+            StartTournamentController(self.tournaments_list[choice]))
+        self.menu.add(
+            "auto",
+            "Revenir au menu principal",
+            main_controllers.HomeMenuController())
+        self.menu.add(
+            "q",
+            "Quitter l'application",
+            main_controllers.ExitApplicationController())
+
+        # 4. Ask user choice
+        user_choice = self._menu_view.get_user_choice()
+
+        # 5. Return the controller link to user choice
+        #    to the main controller
+        return user_choice.handler
+
+    def _tournaments_in_progress(self):
+        tournaments_list = []
+        for tournament in Tournaments.tournaments:
+            if tournament.turn_in_progress < tournament.numbers_of_turns:
+                tournaments_list.append(tournament)
+        return tournaments_list
+
+    def _sort_by_name(self):
+        tournaments_list = []
+        for index, tournament in enumerate(Tournaments.tournaments):
+            insert_tournament = False
+            if index == 0:
+                tournaments_list.append(tournament)
+            else:
+                max_index = len(tournaments_list) - 1
+                enum = enumerate(tournaments_list)
+                for index_list, tournament_in_list in enum:
+                    if tournament_in_list.name > tournament.name:
+                        tournaments_list.insert(index_list, tournament)
+                        insert_tournament = True
+                        break
+                if not insert_tournament:
+                    tournaments_list.append(tournament)
+        return tournaments_list
+
+    def _sort_by_location(self):
+        tournaments_list = []
+        for index, tournament in enumerate(Tournaments.tournaments):
+            insert_tournament = False
+            if index == 0:
+                tournaments_list.append(tournament)
+            else:
+                max_index = len(tournaments_list) - 1
+                enum = enumerate(tournaments_list)
+                for index_list, tournament_in_list in enum:
+                    if tournament_in_list.location > tournament.location:
+                        tournaments_list.insert(index_list, tournament)
+                        insert_tournament = True
+                        break
+                if not insert_tournament:
+                    tournaments_list.append(tournament)
+        return tournaments_list
+
+    def _sort_by_date(self):
+        tournaments_list = []
+        for index, tournament in enumerate(Tournaments.tournaments):
+            insert_tournament = False
+            if index == 0:
+                tournaments_list.append(tournament)
+            else:
+                max_index = len(tournaments_list) - 1
+                enum = enumerate(tournaments_list)
+                for index_list, tournament_in_list in enum:
+                    if tournament_in_list.start_date > tournament.start_date:
+                        tournaments_list.insert(index_list, tournament)
+                        insert_tournament = True
+                        break
+                if not insert_tournament:
+                    tournaments_list.append(tournament)
+        return tournaments_list

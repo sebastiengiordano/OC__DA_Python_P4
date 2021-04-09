@@ -8,6 +8,7 @@ from .views_parameters import (
                             )
 from ..tools.tools_utils import (
                             is_date_format,
+                            datetime_to_str,
                             valid_name
                             )
 
@@ -20,16 +21,13 @@ class AddPlayerView:
                 "\n" + text_left_side_offset_view
                 + "- le nom du joueur")
             player_name = input("   " + input_label)
-            for elem in player_name:
-                if elem.isalpha() or elem.isspace() or elem == "\'":
-                    view_utils.alert_message_centered(
-                        "Format invalide.",
-                        "Le nom ne doit être",
-                        "composé que de lettre.")
-                    print("\n /** Format invalide. **\\")
-                    print("\n Veuillez indiquer :", end="")
-                    break
-            return player_name.capitalize()
+            if not valid_name(player_name):
+                view_utils.alert_message_centered(
+                    "Format invalide.",
+                    "Le nom ne doit être",
+                    "composé que de lettre.")
+            else:
+                return player_name.capitalize()
 
     def get_player_firstname(self):
         print(
@@ -97,3 +95,45 @@ class AddPlayerView:
             else:
                 print("\n /** Réponse invalide. **\\")
             print("\n Veuillez indiquer :", end="")
+
+    def ask_if_player_in_list(self, players):
+        player_number = 0
+        size_list = [len(player) for player in players]
+        size_list.sort()
+        max_lenght = size_list[-1]
+        menu_frame, menu_label = view_utils.menu_frame_design(
+            "Liste des joueurs portant le même nom",
+            max_lenght)
+        print("\n" + menu_frame)
+        print(menu_label)
+        print(menu_frame, end='')
+        for player in players:
+            player_number += 1
+            print(
+                "\n" + text_left_side_offset_view
+                + f"Joueur n°{player_number}:\n"
+                + text_left_side_offset_view
+                + f"   Nom: {player.name}\n"
+                + text_left_side_offset_view
+                + f"   Prénom: {player.firstname}\n"
+                + text_left_side_offset_view
+                + "   Anniversaire: " + datetime_to_str(player.birthday)
+                + "\n"
+                + text_left_side_offset_view
+                + f"   Sexe: {player.sex}")
+        print(menu_frame)
+
+        while True:
+            print(
+                text_left_side_offset_view
+                + "Veuillez indiquer si le joueur est déjà renseigné (o/n):")
+            choice = input("   " + input_label)
+            if choice == "":
+                pass
+            elif choice in "oO":
+                return True
+            elif choice in "nN":
+                return False
+
+            print("\n /** Veuillez entrer o pour oui, **\\", end="")
+            print("\n /**                 n pour non. **\\")

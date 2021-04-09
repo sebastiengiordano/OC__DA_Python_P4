@@ -12,7 +12,7 @@ class Tournaments:
         tournaments : []
             List of instance of tournament
             Update at init with data come from
-            './models/database/db_players.json'.
+            'ChessTournaments/models/database/db_players.json'.
 
     Methods
     -------
@@ -39,24 +39,24 @@ class Tournaments:
 
     @classmethod
     def add_tournament(cls, tournament_to_add):
-        '''Add new tournament in db_tournament.json.
+        '''Add new tournament in db_tournaments.json.
         '''
-        db_tournament = TinyDB(
-            './models/database/db_tournament.json')
+        db_tournaments = TinyDB(
+            'ChessTournaments/models/database/db_tournaments.json')
         cls.tournaments.append(tournament_to_add)
-        return db_tournament.insert(tournament_to_add.serialize())
+        return db_tournaments.insert(tournament_to_add.serialize())
 
     @classmethod
     def update_tournament(cls, tournament_updated):
-        '''Update a tournament in tournaments and db_tournament.json.
+        '''Update a tournament in tournaments and db_tournaments.json.
         '''
-        db_tournament = TinyDB(
-            './models/database/db_tournament.json')
+        db_tournaments = TinyDB(
+            'ChessTournaments/models/database/db_tournaments.json')
         for index, tournament in enumerate(Tournaments.tournaments):
             if tournament == tournament_updated:
                 Tournaments.tournaments[index] = tournament_updated
 
-        db_tournament.update(
+        db_tournaments.update(
             tournament_updated.serialize(),
             Tournament.query_filter())
 
@@ -128,7 +128,7 @@ class Tournament:
         self.numbers_of_turns = 4
         self.players = []
         self.time_control = ""
-        self.description = "Il va falloir écrire quelque chose d'ultra long pour tester la découpe du message. En plus il faudra que ça veuille dire quelque chose cette histoire, non ? De plus, il semblerait que le message s'affiche bien dans son cadre ! C'est vraiment une très très bonne nouvelle. J'espère que le responsable du tournoi en sera ravi."
+        self.description = ""
         self._turns = []
         self.turn_in_progress = 1
         self.score_by_player = []
@@ -264,7 +264,7 @@ class Tournament:
 
     def save_peers_results(self, peer_list, results):
         '''Save the results of the turn in progress.
-        
+
             Instantiate a Turn
             Append each match in Turn.matchs list
             Add this Turn in _turns list
@@ -311,10 +311,16 @@ class Turn:
         turn["round"] = self.current_round
         matchs = []
         for player_1, player_2 in self.matchs:
-            matchs.append((
-                [Players.get_player_id(player_1[0]), player_1[1]],
-                [Players.get_player_id(player_2[0]), player_2[1]]
-                ))
+            if not player_2 == "":
+                matchs.append((
+                    [Players.get_player_id(player_1[0]), player_1[1]],
+                    [Players.get_player_id(player_2[0]), player_2[1]]
+                    ))
+            else:
+                matchs.append((
+                    [Players.get_player_id(player_1[0]), player_1[1]],
+                    ["", 0]
+                    ))
         turn["matchs"] = matchs
         return turn
 
@@ -332,10 +338,13 @@ class Turn:
                 Players.get_player_by_id(serialized_player_1[0]),
                 serialized_player_1[1]
                 ]
-            player_2 = [
-                Players.get_player_by_id(serialized_player_2[0]),
-                serialized_player_2[1]
-                ]
+            if serialized_player_2[0] == "":
+                player_2 = ["", 0]
+            else:
+                player_2 = [
+                    Players.get_player_by_id(serialized_player_2[0]),
+                    serialized_player_2[1]
+                    ]
             matchs.append((player_1, player_2))
         return Turn(current_round, matchs)
 
