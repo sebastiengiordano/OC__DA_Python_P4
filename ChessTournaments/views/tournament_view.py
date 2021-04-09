@@ -348,6 +348,54 @@ class StartTournamentView:
             elif user_input == "3":
                 return (0.5, 0.5)
 
+    def get_user_validation(self, peer_list, results, turn_number):
+        while True:
+            self._show_peers_results(peer_list, results, turn_number)
+            print(
+                "\n Est-ce que les informations sur ce tour"
+                "sont correctes ? (o/n)")
+            user_input = input(input_label)
+            if user_input == "":
+                pass
+            elif user_input in "oO":
+                return True
+            elif user_input in "nN":
+                return False
+
+            print("\n /** Veuillez entrer o pour oui, **\\", end="")
+            print("\n /**                 n pour non. **\\")
+
+    def _show_peers_results(self, peer_list, results, turn_number):
+        width = self._peer_lenght(peer_list)
+        menu_frame, menu_label = view_utils.menu_frame_design(
+            f"Résultat des matchs du tour n°{turn_number}",
+            width)
+        print("\n" + menu_frame)
+        print(menu_label)
+        print(menu_frame, end="")
+        for (player_1, player_2), (r1, r2) in zip(peer_list, results):
+            if r2 == 0.5:
+                print(
+                    (
+                    f"\n{player_1.name} {player_1.firstname} ("
+                    + datetime_to_str(player_1.birthday) + ")").center(width)
+                + "\n" + "VS".center(width)
+                + (
+                    f"\n{player_2.name} {player_2.firstname} ("
+                    + datetime_to_str(player_2.birthday) + ")").center(width)
+                )
+                print("Egalité".center(width))
+            elif r1 == 1:
+                print(
+                    f"\n{player_1.name} {player_1.firstname} ("
+                    + datetime_to_str(player_1.birthday) + ")")
+                print("gagne".center(width))
+            else:
+                print(
+                    f"\n{player_2.name} {player_2.firstname} ("
+                    + datetime_to_str(player_2.birthday) + ")")
+                print("gagne".center(width))
+        print(menu_frame)
 
     def _peer_lenght(self, peer):
         width = 0

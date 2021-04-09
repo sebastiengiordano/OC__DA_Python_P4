@@ -65,10 +65,17 @@ class StartTournamentController:
         self._view.show_peer(peer_list, self._tournament.turn_in_progress)
 
         # 3. Ask for match results
-        for peer in peer_list:
-            result = self._view.ask_4_result(peer)
-            self._tournament = self._set_peer_result(
-                peer, self._tournament, result)
+        while True:
+            results = []
+            # 3.1 Update results
+            for peer in peer_list:
+                results.append(self._view.ask_4_result(peer))
+            # 3.2 Ask for results validation
+            if self._view.get_user_validation(
+                    peer_list, results, self._tournament.turn_in_progress):
+                # 3.3 Save these results
+                self._tournament.save_peers_results(
+                    peer_list, results)
 
         # 4. Update the turn number
         self._tournament.turn_in_progress += 1

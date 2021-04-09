@@ -109,13 +109,15 @@ class Tournament:
     update_scores():
         For each players of this tournament, fill the
         score_by_player list with the Player instance and its total score.
-    get_player_score(self, player_to_find):
+    get_player_score(player_to_find):
         Return the current score of a player.
     get_players_opponant(player):
         Return the list of the players that this player has already faced.
-    update_players_opponant(self):
+    update_players_opponant():
         Update the players_opponant dictionary according to all
         matchs already performed.
+    save_peers_results(peer_list, results):
+        Save the results of the turn in progress.
     '''
 
     def __init__(self):
@@ -260,6 +262,18 @@ class Tournament:
                     self.players_opponant[player_1].append(player_2)
                     self.players_opponant[player_2].append(player_1)
 
+    def save_peers_results(self, peer_list, results):
+        '''Save the results of the turn in progress.
+        
+            Instantiate a Turn
+            Append each match in Turn.matchs list
+            Add this Turn in _turns list
+        '''
+        turn = Turn(self.turn_in_progress)
+        for peer, result in zip(peer_list, results):
+            turn.add_match(peer, result)
+        self._turns.append(turn)
+
 
 class Turn:
     '''Class which represent one turn of a tournament.
@@ -283,10 +297,10 @@ class Turn:
             and db_tournaments.json.
     '''
 
-    def __init__(self, round_number, matchs):
+    def __init__(self, round_number):
         self.current_round = "Round " + str(round_number)
 
-        self.matchs = matchs
+        self.matchs = []
 
     def serialize(self):
         '''Method used to cast turn information in str or int type.
@@ -324,3 +338,8 @@ class Turn:
                 ]
             matchs.append((player_1, player_2))
         return Turn(current_round, matchs)
+
+    def add_match(self, peer, result):
+        self.matchs.append((
+            [peer[0], result[0]],
+            [peer[1], result[1]]))
