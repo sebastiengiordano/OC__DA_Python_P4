@@ -175,7 +175,7 @@ class PlayerListView:
             + f"Prénom : {player.firstname}")
         print(
             text_left_side_offset_view
-            + f"Date de naissance : {player.birthday}")
+            + f"Date de naissance : {datetime_to_str(player.birthday)}")
         print(
             text_left_side_offset_view
             + f"Sexe: {player.sex}")
@@ -205,14 +205,14 @@ class PlayerRankingUpdateView:
                 + "Veuillez indiquer le nouveau classement\n"
                 + input_label)
             if not(self.rank == "") and self.rank.isdigit():
-                return self.rank
-
+                rank = int(self.rank)
+                return rank
 
     def ask_for_validation(self):
         while True:
             print(
-                f"\n Est-ce que le nouveau rank "
-                + "({self.rank}) est correct ? (o/n)")
+                "\n Est-ce que le nouveau rank "
+                + f"({self.rank}) est correct ? (o/n)")
             user_input = input(input_label)
             if user_input == "":
                 pass

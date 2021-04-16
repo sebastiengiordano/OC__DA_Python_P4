@@ -225,7 +225,7 @@ class Tournament:
         '''
         for index, (player, score) in enumerate(self.score_by_player):
             if player_to_update == player:
-                self.score_by_player[index][1] += score_to_add
+                self.score_by_player[index][1] = score + score_to_add
                 break
 
     def get_player_score(self, player_to_find):

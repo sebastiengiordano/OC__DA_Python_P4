@@ -161,12 +161,12 @@ class PlayerListController:
 
     def _sort_by_name(self):
         players_list = Players.players.copy()
-        players_list.sort(key=lambda x: x.name, reverse=True)
+        players_list.sort(key=lambda x: (x.name, x.firstname))
         return players_list
 
     def _sort_by_age(self):
         players_list = Players.players.copy()
-        players_list.sort(key=lambda x: x.birthday, reverse=True)
+        players_list.sort(key=lambda x: (x.birthday, x.name))
         return players_list
 
 
@@ -178,18 +178,20 @@ class PlayerRankingUpdateController:
 
     def __call__(self):
         # Ask for new ranking
-        self._view.ask_for_new_ranking()
+        rank = self._view.ask_for_new_ranking()
         # Ask for validation
-        self._view.ask_for_validation()
-        # Save the player in Players.player
-        self._save_in_players_list()
-        # Save the player in db_players.json
-        self._save_in_db_players()
+        if self._view.ask_for_validation():
+            # update rank
+            self._player.rank = rank
+            # Save the player in Players.player
+            self._save_in_players_list()
+            # Save the player in db_players.json
+            self._save_in_db_players()
         # Go back to main menu
         return HomeMenuController()
 
     def _save_in_players_list(self):
-        for player in Players.players
+        for player in Players.players:
             if player == self._player:
                 player = self._player
                 break
@@ -198,13 +200,14 @@ class PlayerRankingUpdateController:
         db_players = TinyDB(
             'ChessTournaments/models/database/db_players.json')
         query = Query()
+        serialized_player = self._player.serialize()
         player_filter = (
-            (query.name == self._player["name"])
-            & (query.firstname == self._player["firstname"])
-            & (query.birthday == self._player["birthday"])
-            & (query.sex == self._player["sex"]))
+            (query.name == serialized_player["name"])
+            & (query.firstname == serialized_player["firstname"])
+            & (query.birthday == serialized_player["birthday"])
+            & (query.sex == serialized_player["sex"]))
         db_players.update(
-            self._player.serialize(),
+            serialized_player,
             player_filter)
 
 
