@@ -1,15 +1,19 @@
+from datetime import date
+
 from . import main_controllers
 from ..views.tournament_view import (
     NewTournamentFormView,
     StartTournamentView,
     NewTournamentAddPlayerView,
-    TournamentListView
+    TournamentListView,
+    TournamentResult
     )
 from ..views.menu_views import (
     NewTournamentStartMenuView,
     NewTournamentMenuView,
     TurnMenuView,
-    ChoiceTournamentMenuView
+    ChoiceTournamentMenuView,
+    TournamentTerminatedMenuView
     )
 from ..models.menus import Menu
 from ..models.Player import Players, Player
@@ -90,62 +94,65 @@ class ChoiceTournamentController:
 
 
 class StartTournamentController:
-'''
-'''
+    '''
+    '''
     def __init__(self, tournament):
         self.menu = Menu()
         self._tournament = tournament
         self._view = StartTournamentView()
-        self._turn_menu_view = TurnMenuView(
-            self.menu, tournament.turn_in_progress)
 
     def __call__(self):
+        # Tournament terminated
+        numbers_of_turns = self._tournament.numbers_of_turns
+        if self._tournament.turn_in_progress > numbers_of_turns:
+            return self._tournament_terminated()
+
         while True:
-            # 1. Peer generation
+            # Peer generation
             peer_list = self._peer_generation(self._tournament)
 
-            # 2. Show peer for this turn
+            # Show peer for this turn
             self._view.show_peer(peer_list, self._tournament.turn_in_progress)
 
-            # 3. Ask for match results
+            # Ask for match results
             results = []
-            # 3.1 Update results
+            # Update results
             for peer in peer_list:
                 if peer[1] == "":
                     results.append((1, 0))
                 else:
                     results.append(self._view.ask_4_result((peer)))
-            # 3.2 Ask for results validation
+            # Ask for results validation
             if self._view.get_user_validation(
                     peer_list, results, self._tournament.turn_in_progress):
-                # 4 Save these results
+                # Save these results
                 self._tournament.save_peers_results(
                     peer_list, results)
 
-                # 5. Update the turn number
+                # Update the turn number
                 self._tournament.turn_in_progress += 1
+                # If tournament is terminated
+                if self._tournament.turn_in_progress > numbers_of_turns:
+                    # Update the end date
+                    self._tournament.end_date = date.today()
+                    # Save the tournament
+                    Tournaments.update_tournament(self._tournament)
+                    # Show the tournament result
+                    TournamentResult.show_tournament_result(self._tournament)
+                    # Go to Tournament terminated menu
+                    return self._tournament_terminated()
 
-                # 6. Save the tournament
+                # Save the tournament
                 Tournaments.update_tournament(self._tournament)
 
-            self.menu.add(
-                "t",
-                "Lancer ce tour",
-                StartTournamentController(self._tournament))
-            self.menu.add(
-                "r",
-                "Revenir au menu principal",
-                main_controllers.HomeMenuController())
-            self.menu.add(
-                "q",
-                "Quitter l'application",
-                main_controllers.ExitApplicationController())
+            # Generate the turn menu
+            self._turn_menu_generation()
 
-            # 7. Ask user choice
+            # Ask user choice
             user_choice = self._turn_menu_view.get_user_choice()
 
-            # 8. Return the controller link to user choice
-            #    to the main controller
+            # Return the controller link to user choice
+            # to the main controller
             return user_choice.handler
 
     def _peer_generation(self, tournament):
@@ -207,6 +214,46 @@ class StartTournamentController:
             if not opponent_find:
                 peer.append((player_1_score[0], ""))
         return peer
+
+    def _turn_menu_generation(self):
+        self._turn_menu_view = TurnMenuView(
+            self.menu, self._tournament.turn_in_progress)
+        self.menu.add(
+            "auto",
+            "Lancer ce tour",
+            StartTournamentController(self._tournament))
+        self.menu.add(
+            "r",
+            "Revenir au menu principal",
+            main_controllers.HomeMenuController())
+        self.menu.add(
+            "q",
+            "Quitter l'application",
+            main_controllers.ExitApplicationController())
+
+    def _tournament_terminated(self):
+        menu = Menu()
+        tournament_terminated_view = TournamentTerminatedMenuView(menu)
+        menu.add(
+            "auto",
+            "Lancer / Reprendre un tournoi",
+            ChoiceTournamentController())
+        menu.add(
+            "r",
+            "Revenir au menu principal",
+            main_controllers.HomeMenuController())
+        menu.add(
+            "q",
+            "Quitter l'application",
+            main_controllers.ExitApplicationController())
+
+        # Ask user choice
+        user_choice = tournament_terminated_view.get_user_choice()
+
+        # Return the controller link to user choice
+        # to the main controller
+        return user_choice.handler
+
 
 class NewTournamentFormController:
 
@@ -353,7 +400,7 @@ class TournamentListController:
     def _tournaments_in_progress(self):
         tournaments_list = []
         for tournament in Tournaments.tournaments:
-            if tournament.turn_in_progress < tournament.numbers_of_turns:
+            if tournament.turn_in_progress <= tournament.numbers_of_turns:
                 tournaments_list.append(tournament)
         return tournaments_list
 
