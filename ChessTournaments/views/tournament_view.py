@@ -1,7 +1,5 @@
 import datetime
 
-
-from .player_views import AddPlayerView
 from . import view_utils
 from .views_parameters import (
                             text_left_side_offset_view,
@@ -290,7 +288,7 @@ class StartTournamentView:
         print(menu_label)
         print(menu_frame, end="")
         for player_1, player_2 in peer_list:
-            player_one =  (
+            player_one = (
                 f"{player_1.name} {player_1.firstname} ("
                 + datetime_to_str(player_1.birthday) + ")")
             if not player_2 == "":
@@ -322,7 +320,7 @@ class StartTournamentView:
             print(menu_label)
             print(menu_frame)
             for player_1, player_2 in (peer,):
-                player_one =  (
+                player_one = (
                     f"{player_1.name} {player_1.firstname} ("
                     + datetime_to_str(player_1.birthday) + ")")
                 player_two = (
@@ -380,7 +378,7 @@ class StartTournamentView:
         print(menu_label)
         print(menu_frame, end="")
         for (player_1, player_2), (r1, r2) in zip(peer_list, results):
-            player_one =  (
+            player_one = (
                 f"{player_1.name} {player_1.firstname} ("
                 + datetime_to_str(player_1.birthday) + ")")
             if not player_2 == "":
@@ -558,7 +556,7 @@ class TournamentListView(NewTournamentFormView):
         while True:
             # Ask the user its choice
             print(
-                "Veuillez indiquer le numéro du tournoi choisi.")
+                "\nVeuillez indiquer le numéro du tournoi choisi.")
             choice = input(input_label)
             # Validate the user choice
             if choice in choice_list:
@@ -583,6 +581,14 @@ class TournamentListView(NewTournamentFormView):
         print(
             text_left_side_offset_view
             + f"Nombre de tours : {tournament.numbers_of_turns}")
+        if tournament.turn_in_progress <= tournament.numbers_of_turns:
+            print(
+                text_left_side_offset_view
+                + f"Tours en cours : {tournament.turn_in_progress}")
+        else:
+            print(
+                text_left_side_offset_view
+                + "Tournoi terminé")
         self._show_tournament_players(tournament, max_lenght)
         print(
             text_left_side_offset_view

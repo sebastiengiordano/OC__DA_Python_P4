@@ -73,7 +73,7 @@ class ChoiceTournamentController:
             "Afficher la liste des tournois par date",
             TournamentListController("Date"))
         self.menu.add(
-            "h",
+            "a",
             "Allez au menu d'acceuil",
             main_controllers.HomeMenuController())
         self.menu.add(
@@ -90,7 +90,8 @@ class ChoiceTournamentController:
 
 
 class StartTournamentController:
-
+'''
+'''
     def __init__(self, tournament):
         self.menu = Menu()
         self._tournament = tournament
@@ -111,39 +112,39 @@ class StartTournamentController:
             # 3.1 Update results
             for peer in peer_list:
                 if peer[1] == "":
-                    results.append((1,0))
+                    results.append((1, 0))
                 else:
                     results.append(self._view.ask_4_result((peer)))
             # 3.2 Ask for results validation
             if self._view.get_user_validation(
                     peer_list, results, self._tournament.turn_in_progress):
-                # 3.3 Save these results
+                # 4 Save these results
                 self._tournament.save_peers_results(
                     peer_list, results)
 
-            # 4. Update the turn number
-            self._tournament.turn_in_progress += 1
+                # 5. Update the turn number
+                self._tournament.turn_in_progress += 1
 
-            # 5. Save the tournament
-            Tournaments.update_tournament(self._tournament)
+                # 6. Save the tournament
+                Tournaments.update_tournament(self._tournament)
 
             self.menu.add(
-                "s",
-                "Lancer le tour suivant",
-                StartTournamentController(self.tournament))
+                "t",
+                "Lancer ce tour",
+                StartTournamentController(self._tournament))
             self.menu.add(
-                "h",
-                "Allez au menu d'acceuil",
+                "r",
+                "Revenir au menu principal",
                 main_controllers.HomeMenuController())
             self.menu.add(
                 "q",
                 "Quitter l'application",
                 main_controllers.ExitApplicationController())
 
-            # 4. Ask user choice
+            # 7. Ask user choice
             user_choice = self._turn_menu_view.get_user_choice()
 
-            # 5. Return the controller link to user choice
+            # 8. Return the controller link to user choice
             #    to the main controller
             return user_choice.handler
 
@@ -178,31 +179,34 @@ class StartTournamentController:
         # Sort all the players according to their total number of points.
         # If several players have the same number of points,
         # sort them according to their rank.
+        tournament.update_scores()
         for player_id in tournament.players:
             player = Players.get_player_by_id(player_id)
             player_score = tournament.get_player_score(player)
-            players_list.append(player, player_score)
+            players_list.append((player, player_score))
         players_list.sort(key=lambda x: (x[1], x[0]), reverse=True)
 
-        tournament.update_players_opponant()
+        tournament.update_players_opponent()
         # Match player 1 with player 2, player 3 with player 4, and so on.
         # If these players have already played together before,
         # pair them with following player.
         number_of_peer = len(players_list) // 2
         odd_number_of_players = len(players_list) % 2
         for _ in range(number_of_peer + odd_number_of_players):
-            player_1 = players_list.pop(0)
+            player_1_score = players_list.pop(0)
             opponent_find = False
-            for player_2 in players_list:
-                players_opponant = tournament.get_players_opponant(player_1)
-                if player_2 not in players_opponant:
-                    peer.append(player_1, player_2)
-                    players_list.remove(player_2)
+            player_1_id = Players.get_player_id(player_1_score[0])
+            players_opponent = tournament.get_players_opponent(player_1_id)
+            for player_2_score in players_list:
+                player_2_id = Players.get_player_id(player_2_score[0])
+                if player_2_id not in players_opponent:
+                    peer.append((player_1_score[0], player_2_score[0]))
+                    players_list.remove(player_2_score)
                     opponent_find = True
                     break
             if not opponent_find:
-                peer.append(player_1, "")
-
+                peer.append((player_1_score[0], ""))
+        return peer
 
 class NewTournamentFormController:
 
@@ -360,7 +364,6 @@ class TournamentListController:
             if index == 0:
                 tournaments_list.append(tournament)
             else:
-                max_index = len(tournaments_list) - 1
                 enum = enumerate(tournaments_list)
                 for index_list, tournament_in_list in enum:
                     if tournament_in_list.name > tournament.name:
@@ -378,7 +381,6 @@ class TournamentListController:
             if index == 0:
                 tournaments_list.append(tournament)
             else:
-                max_index = len(tournaments_list) - 1
                 enum = enumerate(tournaments_list)
                 for index_list, tournament_in_list in enum:
                     if tournament_in_list.location > tournament.location:
@@ -396,7 +398,6 @@ class TournamentListController:
             if index == 0:
                 tournaments_list.append(tournament)
             else:
-                max_index = len(tournaments_list) - 1
                 enum = enumerate(tournaments_list)
                 for index_list, tournament_in_list in enum:
                     if tournament_in_list.start_date > tournament.start_date:

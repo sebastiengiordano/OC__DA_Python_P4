@@ -67,7 +67,7 @@ class TurnMenuView(MenuView):
 
 
 class ChoiceTournamentMenuView(MenuView):
-    
+
     def __init__(self, menu):
         super().__init__(menu)
-        self._menu_name = f"Démarrer / Reprendre un tournoi"
+        self._menu_name = "Démarrer / Reprendre un tournoi"

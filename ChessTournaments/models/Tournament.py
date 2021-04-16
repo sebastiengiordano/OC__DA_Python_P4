@@ -58,7 +58,7 @@ class Tournaments:
 
         db_tournaments.update(
             tournament_updated.serialize(),
-            Tournament.query_filter())
+            Tournament.query_filter(tournament_updated))
 
 
 class Tournament:
@@ -90,7 +90,7 @@ class Tournament:
         score_by_player : []
             List which contains lists for each players with their score.
             Update after each turn (or at init to resume tournament)
-        players_opponant : {}
+        players_opponent : {}
             Dict which contains, for each players of this tournament,
             all players already faced.
 
@@ -111,10 +111,10 @@ class Tournament:
         score_by_player list with the Player instance and its total score.
     get_player_score(player_to_find):
         Return the current score of a player.
-    get_players_opponant(player):
+    get_players_opponent(player_id):
         Return the list of the players that this player has already faced.
-    update_players_opponant():
-        Update the players_opponant dictionary according to all
+    update_players_opponent():
+        Update the players_opponent dictionary according to all
         matchs already performed.
     save_peers_results(peer_list, results):
         Save the results of the turn in progress.
@@ -132,7 +132,7 @@ class Tournament:
         self._turns = []
         self.turn_in_progress = 1
         self.score_by_player = []
-        self.players_opponant = {}
+        self.players_opponent = {}
 
         self._time_control_type = {
             "1": "Bullet",
@@ -234,33 +234,35 @@ class Tournament:
             if player == player_to_find:
                 return score
 
-    def get_players_opponant(self, player):
+    def get_players_opponent(self, player_id):
         '''Return the list of the players that
         this player has already faced.
         '''
-        return self.players_opponant.get(player, [])
+        return self.players_opponent.get(player_id, [])
 
-    def update_players_opponant(self):
-        '''Update the players_opponant dictionary according to all
+    def update_players_opponent(self):
+        '''Update the players_opponent dictionary according to all
         matchs already performed.
         '''
-        # Initialize the players_opponant dict with
+        # Initialize the players_opponent dict with
         # empty list for each players
         for player_id in self.players:
-            player = Players.get_player_by_id(player_id)
-            if player not in self.players_opponant:
-                self.players_opponant[player] = []
+            if player_id not in self.players_opponent:
+                self.players_opponent[player_id] = []
             else:
                 # Initialization already performed
                 break
 
         for turn in self._turns:
             for turn_players in turn.matchs:
-                player_1 = turn_players[0][0]
-                player_2 = turn_players[1][0]
-                if player_1 not in self.players_opponant.get(player_2, ""):
-                    self.players_opponant[player_1].append(player_2)
-                    self.players_opponant[player_2].append(player_1)
+                if not turn_players[1][0] == "":
+                    player_1 = Players.get_player_id(turn_players[0][0])
+                    player_2 = Players.get_player_id(turn_players[1][0])
+                    player_2_opponent = self.players_opponent.get(
+                        player_2, "")
+                    if player_1 not in player_2_opponent:
+                        self.players_opponent[player_1].append(player_2)
+                        self.players_opponent[player_2].append(player_1)
 
     def save_peers_results(self, peer_list, results):
         '''Save the results of the turn in progress.
@@ -297,10 +299,10 @@ class Turn:
             and db_tournaments.json.
     '''
 
-    def __init__(self, round_number):
+    def __init__(self, round_number, matchs=[]):
         self.current_round = "Round " + str(round_number)
 
-        self.matchs = []
+        self.matchs = matchs
 
     def serialize(self):
         '''Method used to cast turn information in str or int type.
@@ -311,7 +313,7 @@ class Turn:
         turn["round"] = self.current_round
         matchs = []
         for player_1, player_2 in self.matchs:
-            if not player_2 == "":
+            if not player_2[0] == "":
                 matchs.append((
                     [Players.get_player_id(player_1[0]), player_1[1]],
                     [Players.get_player_id(player_2[0]), player_2[1]]
@@ -329,9 +331,9 @@ class Turn:
         '''Classmethod used to restore turn information come from
         serialized turn data.
         '''
-        current_round = serialized_turn["round"]
+        current_round = serialized_turn["round"][6:]
         matchs = []
-        for turn in serialized_turn["round"]:
+        for turn in serialized_turn["matchs"]:
             serialized_player_1 = turn[0]
             serialized_player_2 = turn[1]
             player_1 = [
