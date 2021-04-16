@@ -78,3 +78,15 @@ class TournamentTerminatedMenuView(MenuView):
     def __init__(self, menu):
         super().__init__(menu)
         self._menu_name = "Le tournoi sélectionné est terminé."
+
+
+class RankingUpdateMenuView(MenuView):
+    def __init__(self, menu):
+        super().__init__(menu)
+        self._menu_name = "Mettre à jour les classements."
+
+
+class ChoicePlayerMenuView(MenuView):
+    def __init__(self, menu):
+        super().__init__(menu)
+        self._menu_name = "Valider le choix du joueur."

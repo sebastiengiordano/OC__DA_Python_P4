@@ -2,21 +2,21 @@ import datetime
 
 from . import view_utils
 from .views_parameters import (
-                            text_left_side_offset_view,
-                            first_indent_view,
-                            input_label,
-                            MENU_LEFT_SIDE_OFFSET,
-                            TEXT_LEFT_SIDE_OFFSET,
-                            DESCRIPTION_DISPLAY_MAX_SIZE,
-                            FIRST_INDENT
-                            )
+    text_left_side_offset_view,
+    first_indent_view,
+    input_label,
+    MENU_LEFT_SIDE_OFFSET,
+    TEXT_LEFT_SIDE_OFFSET,
+    DESCRIPTION_DISPLAY_MAX_SIZE,
+    FIRST_INDENT
+    )
 from ..models import Tournament
 from ..models.Player import Players
 from ..tools.tools_utils import (
-                            is_date_format,
-                            datetime_to_str,
-                            valid_name
-                            )
+    is_date_format,
+    datetime_to_str,
+    valid_name
+    )
 from ..controllers import tournament_controller
 
 
@@ -519,7 +519,8 @@ class NewTournamentAddPlayerView:
                     + text_left_side_offset_view
                     + f"   Prénom: {player.firstname}\n"
                     + text_left_side_offset_view
-                    + "   Anniversaire: " + datetime_to_str(player.birthday)
+                    + "   Date de naissance: "
+                    + datetime_to_str(player.birthday)
                     + "\n"
                     + text_left_side_offset_view
                     + f"   Sexe: {player.sex}")
@@ -684,7 +685,7 @@ class TournamentResult(NewTournamentFormView):
             max_lenght.append(
                 len(player)
                 + TEXT_LEFT_SIDE_OFFSET
-                + len(" (01/04/1977)   11.5")
+                + len(" (dd/mm/yyyy)   11.5")
                 )
         max_lenght.append(
             len("Contrôle du temps : ")

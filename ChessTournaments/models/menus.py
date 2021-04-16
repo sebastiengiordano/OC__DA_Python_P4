@@ -38,11 +38,3 @@ class Menu:
 
     def __getitem__(self, key):
         return self._entries[key]
-
-
-if __name__ == "__main__":
-    menu = Menu()
-    menu.add("auto", "première option du menu", lambda: None)
-    menu.add("auto", "deuxième option du menu", lambda: None)
-    menu.add("q", "quitter le menu", lambda: None)
-    print(menu._entries)

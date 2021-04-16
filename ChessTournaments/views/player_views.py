@@ -2,15 +2,15 @@ import datetime
 
 from . import view_utils
 from .views_parameters import (
-                            text_left_side_offset_view,
-                            first_indent_view,
-                            input_label
-                            )
+    text_left_side_offset_view,
+    first_indent_view,
+    input_label
+    )
 from ..tools.tools_utils import (
-                            is_date_format,
-                            datetime_to_str,
-                            valid_name
-                            )
+    is_date_format,
+    datetime_to_str,
+    valid_name
+    )
 
 
 class AddPlayerView:
@@ -117,7 +117,7 @@ class AddPlayerView:
                 + text_left_side_offset_view
                 + f"   Prénom: {player.firstname}\n"
                 + text_left_side_offset_view
-                + "   Anniversaire: " + datetime_to_str(player.birthday)
+                + "   Date de naissance: " + datetime_to_str(player.birthday)
                 + "\n"
                 + text_left_side_offset_view
                 + f"   Sexe: {player.sex}")
@@ -133,6 +133,92 @@ class AddPlayerView:
             elif choice in "oO":
                 return True
             elif choice in "nN":
+                return False
+
+            print("\n /** Veuillez entrer o pour oui, **\\", end="")
+            print("\n /**                 n pour non. **\\")
+
+
+class PlayerListView:
+
+    def show_players(self, players_list):
+        self.number = 0
+        for player in players_list:
+            self.number += 1
+            self._player_summary(player, self.number)
+
+    def get_player_choice(self):
+        choice_list = [str(i) for i in range(1, self.number + 1)]
+        while True:
+            # Ask the user its choice
+            print(
+                "\nVeuillez indiquer le numéro du joueur choisi.")
+            choice = input(input_label)
+            # Validate the user choice
+            if choice in choice_list:
+                # Return the user choice
+                return int(choice) - 1
+
+    def _player_summary(self, player, number):
+        max_lenght = self._max_lenght(player)
+        menu_frame, menu_label = view_utils.menu_frame_design(
+            f"Joueur n°{number}",
+            max_lenght)
+        print("\n" + menu_frame)
+        print(menu_label)
+        print(menu_frame)
+        print(
+            text_left_side_offset_view
+            + f"Nom  : {player.name}")
+        print(
+            text_left_side_offset_view
+            + f"Prénom : {player.firstname}")
+        print(
+            text_left_side_offset_view
+            + f"Date de naissance : {player.birthday}")
+        print(
+            text_left_side_offset_view
+            + f"Sexe: {player.sex}")
+        print(
+            text_left_side_offset_view
+            + f"Rank: {str(player.rank)}")
+        print(menu_frame, end="\n\n")
+
+    def _max_lenght(self, player):
+        offset = len(text_left_side_offset_view)
+        max_lenght = max(
+            len(f"Nom  : {player.name}"),
+            len(f"Prénom : {player.firstname}"),
+            len("Date de naissance : dd/mm/yyyy"),
+            len(f"Sexe: {player.sex}"),
+            len(f"Rank: {str(player.rank)}")
+            )
+        return max_lenght + offset
+
+
+class PlayerRankingUpdateView:
+
+    def ask_for_new_ranking(self):
+        while True:
+            self.rank = input(
+                text_left_side_offset_view
+                + "Veuillez indiquer le nouveau classement\n"
+                + input_label)
+            if not(self.rank == "") and self.rank.isdigit():
+                return self.rank
+
+
+    def ask_for_validation(self):
+        while True:
+            print(
+                f"\n Est-ce que le nouveau rank "
+                + "({self.rank}) est correct ? (o/n)")
+            user_input = input(input_label)
+            if user_input == "":
+                pass
+            elif user_input in "oO":
+                return True
+            elif user_input in "nN":
                 return False
 
             print("\n /** Veuillez entrer o pour oui, **\\", end="")

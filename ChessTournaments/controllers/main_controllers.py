@@ -1,12 +1,21 @@
+from tinydb import TinyDB, Query
+
 from ..models.menus import Menu
 from ..models.Player import Players, Player
 from ..models.Tournament import Tournaments
-from ..views.menu_views import HomeMenuView
-from ..views.player_views import AddPlayerView
+from ..views.menu_views import (
+    HomeMenuView,
+    RankingUpdateMenuView,
+    ChoicePlayerMenuView)
+from ..views.player_views import (
+    AddPlayerView,
+    PlayerListView,
+    PlayerRankingUpdateView
+    )
 from .tournament_controller import (
-                                NewTournamentController,
-                                ChoiceTournamentController
-                                )
+    NewTournamentController,
+    ChoiceTournamentController
+    )
 
 
 class ApplicationController:
@@ -66,10 +75,137 @@ class RankingUpdateController:
 
     def __init__(self):
         self.menu = Menu()
-        self._view = RankingUpdateView(self.menu)
+        self._view = RankingUpdateMenuView(self.menu)
 
     def __call__(self):
-        pass
+        self.menu.add(
+            "auto",
+            "Afficher la liste des joueurs",
+            PlayerListController())
+        self.menu.add(
+            "auto",
+            "Afficher la liste des joueurs par classement",
+            PlayerListController("Ranking"))
+        self.menu.add(
+            "auto",
+            "Afficher la liste des joueurs par nom",
+            PlayerListController("Name"))
+        self.menu.add(
+            "auto",
+            "Afficher la liste des joueurs par age",
+            PlayerListController("Age"))
+        self.menu.add(
+            "a",
+            "Allez au menu d'acceuil",
+            HomeMenuController())
+        self.menu.add(
+            "q",
+            "Quitter l'application",
+            ExitApplicationController())
+
+        # 2. Ask user choice
+        user_choice = self._view.get_user_choice()
+
+        # 3. Return the controller link to user choice
+        #    to the main controller
+        return user_choice.handler
+
+
+class PlayerListController:
+
+    def __init__(self, list_filter=None):
+        self.menu = Menu()
+        self._menu_view = ChoicePlayerMenuView(self.menu)
+        self._view = PlayerListView()
+        if list_filter == "Ranking":
+            self.players_list = self._sort_by_ranking()
+        elif list_filter == "Name":
+            self.players_list = self._sort_by_name()
+        elif list_filter == "Age":
+            self.players_list = self._sort_by_age()
+        else:
+            self.players_list = Players.players.copy()
+
+    def __call__(self):
+        # 1. Show the players list
+        self._view.show_players(self.players_list)
+
+        # 2. Ask player choice
+        choice = self._view.get_player_choice()
+
+        # 3. Generate the player ranking update menu
+        self.menu.add(
+            "auto",
+            f"Modifier le classement du joueur n°{choice + 1}",
+            PlayerRankingUpdateController(self.players_list[choice]))
+        self.menu.add(
+            "auto",
+            "Revenir au menu principal",
+            HomeMenuController())
+        self.menu.add(
+            "q",
+            "Quitter l'application",
+            ExitApplicationController())
+
+        # 4. Ask user choice
+        user_choice = self._menu_view.get_user_choice()
+
+        # 5. Return the controller link to user choice
+        #    to the main controller
+        return user_choice.handler
+
+    def _sort_by_ranking(self):
+        players_list = Players.players.copy()
+        players_list.sort(key=lambda x: x.rank, reverse=True)
+        return players_list
+
+    def _sort_by_name(self):
+        players_list = Players.players.copy()
+        players_list.sort(key=lambda x: x.name, reverse=True)
+        return players_list
+
+    def _sort_by_age(self):
+        players_list = Players.players.copy()
+        players_list.sort(key=lambda x: x.birthday, reverse=True)
+        return players_list
+
+
+class PlayerRankingUpdateController:
+
+    def __init__(self, player):
+        self._player = player
+        self._view = PlayerRankingUpdateView()
+
+    def __call__(self):
+        # Ask for new ranking
+        self._view.ask_for_new_ranking()
+        # Ask for validation
+        self._view.ask_for_validation()
+        # Save the player in Players.player
+        self._save_in_players_list()
+        # Save the player in db_players.json
+        self._save_in_db_players()
+        # Go back to main menu
+        return HomeMenuController()
+
+    def _save_in_players_list(self):
+        for player in Players.players
+            if player == self._player:
+                player = self._player
+                break
+
+    def _save_in_db_players(self):
+        db_players = TinyDB(
+            'ChessTournaments/models/database/db_players.json')
+        query = Query()
+        player_filter = (
+            (query.name == self._player["name"])
+            & (query.firstname == self._player["firstname"])
+            & (query.birthday == self._player["birthday"])
+            & (query.sex == self._player["sex"]))
+        db_players.update(
+            self._player.serialize(),
+            player_filter)
 
 
 class AddPlayerController:
