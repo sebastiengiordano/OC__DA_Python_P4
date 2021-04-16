@@ -65,7 +65,8 @@ class HomeMenuController:
 class RankingUpdateController:
 
     def __init__(self):
-        pass
+        self.menu = Menu()
+        self._view = RankingUpdateView(self.menu)
 
     def __call__(self):
         pass

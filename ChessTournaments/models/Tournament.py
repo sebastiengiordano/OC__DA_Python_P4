@@ -55,6 +55,7 @@ class Tournaments:
         for index, tournament in enumerate(Tournaments.tournaments):
             if tournament == tournament_updated:
                 Tournaments.tournaments[index] = tournament_updated
+                break
 
         db_tournaments.update(
             tournament_updated.serialize(),
@@ -271,7 +272,7 @@ class Tournament:
             Append each match in Turn.matchs list
             Add this Turn in _turns list
         '''
-        turn = Turn(self.turn_in_progress)
+        turn = Turn(self.turn_in_progress, [])
         for peer, result in zip(peer_list, results):
             turn.add_match(peer, result)
         self._turns.append(turn)
@@ -299,9 +300,8 @@ class Turn:
             and db_tournaments.json.
     '''
 
-    def __init__(self, round_number, matchs=[]):
+    def __init__(self, round_number, matchs):
         self.current_round = "Round " + str(round_number)
-
         self.matchs = matchs
 
     def serialize(self):

@@ -280,12 +280,12 @@ class StartTournamentView:
         width = self._peers_lenght(peer_list)
 
         menu_frame, menu_label = view_utils.menu_frame_design(
-            f"Liste des pairs pour le tour n°{turn_number}",
+            f"\nListe des pairs pour le tour n°{turn_number}",
             width)
         width = max(len(menu_frame), width)
         print("\n" + menu_frame)
         print(menu_label)
-        print(menu_frame, end="")
+        print(menu_frame)
         for player_1, player_2 in peer_list:
             player_one = (
                 f"{player_1.name} {player_1.firstname} ("
@@ -315,7 +315,7 @@ class StartTournamentView:
             menu_frame, menu_label = view_utils.menu_frame_design(
                 "Résultat du match",
                 width)
-            print("\n" + menu_frame)
+            print("\n\n" + menu_frame)
             print(menu_label)
             print(menu_frame)
             for player_1, player_2 in (peer,):
@@ -374,7 +374,7 @@ class StartTournamentView:
         width = max(len(menu_frame), width)
         print("\n" + menu_frame)
         print(menu_label)
-        print(menu_frame, end="")
+        print(menu_frame)
         for (player_1, player_2), (r1, r2) in zip(peer_list, results):
             player_one = (
                 f"{player_1.name} {player_1.firstname} ("
@@ -396,7 +396,8 @@ class StartTournamentView:
             else:
                 print("\n" + player_two.center(width))
                 print("gagne".center(width))
-        print(menu_frame)
+            print()
+        print(menu_frame, end="\n\n")
 
     def _peers_lenght(self, peer):
         width = 0
@@ -595,12 +596,10 @@ class TournamentListView(NewTournamentFormView):
 
 class TournamentResult(NewTournamentFormView):
 
-    @classmethod
     def show_tournament_result(self, tournament):
-        t = tournament
-        max_lenght = self.max_lenght(tournament=t)
+        max_lenght = self.max_lenght(tournament)
         menu_frame, menu_label = view_utils.menu_frame_design(
-            f"Résultat du tournoi",
+            "Résultat du tournoi",
             max_lenght)
         max_lenght = max(max_lenght, len(menu_frame))
         print("\n" + menu_frame)
@@ -622,27 +621,75 @@ class TournamentResult(NewTournamentFormView):
                 + f"Tours en cours : {tournament.turn_in_progress}")
         else:
             print("Tournoi terminé".center(len(menu_frame)))
-        self._show_tournament_players(tournament, max_lenght)
+        self._show_tournament_score(tournament, max_lenght)
         print(
             text_left_side_offset_view
             + f"Contrôle du temps : {tournament.time_control}")
         self._show_tournament_description(tournament, max_lenght)
         print(menu_frame)
 
-    def _show_tournament_players(self, tournament, max_lenght):
-        tournament.update_scores()        
-        print(text_left_side_offset_view + "Liste des joueurs :")
-        for player_id in tournament.players:
-            player = Players.get_player_by_id(player_id)
-            score = tournament.get_player_score(player_id)
-            player = player.name + " " + player.firstname
+    def _show_tournament_score(self, tournament, max_lenght):
+        tournament.update_scores()
+        print("\n" + text_left_side_offset_view + "Classement des joueurs :")
+        players_list = self._sort_by_score(tournament)
+        for player, score in players_list:
+            player = (
+                player.name
+                + " "
+                + player.firstname
+                + " ("
+                + datetime_to_str(player.birthday)
+                + ")")
             print(
                 text_left_side_offset_view
+                + first_indent_view
                 + player
                 + score.rjust(
                     max_lenght
-                    - text_left_side_offset_view
-                    - len(player)
-                    - 1
+                    - len(
+                        text_left_side_offset_view
+                        + first_indent_view
+                        + player)
+                    - 2
                 )
             )
+        print()
+
+    def _sort_by_score(self, tournament):
+        players_list = []
+        for player_id in tournament.players:
+            player = Players.get_player_by_id(player_id)
+            score = str(tournament.get_player_score(player))
+            players_list.append((player, score))
+        players_list.sort(key=lambda x: (x[1], x[0]), reverse=True)
+        return players_list
+
+    def max_lenght(self, tournament):
+        max_lenght = []
+        if len(tournament.description) \
+                > DESCRIPTION_DISPLAY_MAX_SIZE:
+            max_lenght.append(DESCRIPTION_DISPLAY_MAX_SIZE)
+        max_lenght.append(
+            len(tournament.name)
+            + len("Nom : ")
+            + TEXT_LEFT_SIDE_OFFSET
+            )
+        max_lenght.append(
+            len(tournament.location)
+            + len("Lieu : ")
+            + TEXT_LEFT_SIDE_OFFSET
+            )
+        for player_id in tournament.players:
+            player = Players.get_player_by_id(player_id)
+            max_lenght.append(
+                len(player)
+                + TEXT_LEFT_SIDE_OFFSET
+                + len(" (01/04/1977)   11.5")
+                )
+        max_lenght.append(
+            len("Contrôle du temps : ")
+            + len(tournament.time_control)
+            + TEXT_LEFT_SIDE_OFFSET
+            )
+        max_lenght.sort()
+        return max_lenght[-1]

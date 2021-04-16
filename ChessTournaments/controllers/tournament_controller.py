@@ -100,6 +100,7 @@ class StartTournamentController:
         self.menu = Menu()
         self._tournament = tournament
         self._view = StartTournamentView()
+        self._view_result = TournamentResult()
 
     def __call__(self):
         # Tournament terminated
@@ -138,7 +139,7 @@ class StartTournamentController:
                     # Save the tournament
                     Tournaments.update_tournament(self._tournament)
                     # Show the tournament result
-                    TournamentResult.show_tournament_result(self._tournament)
+                    self._view_result.show_tournament_result(self._tournament)
                     # Go to Tournament terminated menu
                     return self._tournament_terminated()
 
@@ -197,9 +198,7 @@ class StartTournamentController:
         # Match player 1 with player 2, player 3 with player 4, and so on.
         # If these players have already played together before,
         # pair them with following player.
-        number_of_peer = len(players_list) // 2
-        odd_number_of_players = len(players_list) % 2
-        for _ in range(number_of_peer + odd_number_of_players):
+        while len(players_list) > 0:
             player_1_score = players_list.pop(0)
             opponent_find = False
             player_1_id = Players.get_player_id(player_1_score[0])
@@ -223,7 +222,7 @@ class StartTournamentController:
             "Lancer ce tour",
             StartTournamentController(self._tournament))
         self.menu.add(
-            "r",
+            "auto",
             "Revenir au menu principal",
             main_controllers.HomeMenuController())
         self.menu.add(
@@ -239,7 +238,7 @@ class StartTournamentController:
             "Lancer / Reprendre un tournoi",
             ChoiceTournamentController())
         menu.add(
-            "r",
+            "auto",
             "Revenir au menu principal",
             main_controllers.HomeMenuController())
         menu.add(
