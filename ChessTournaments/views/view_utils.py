@@ -44,3 +44,11 @@ def alert_message_centered(*args):
         print(" **\\")
 
     print(" /" + "*" * (max_size + 6) + "\\")
+
+
+def score_padding(score):
+    if score - int(score) <= 0.001:
+        score = int(score)
+        return f"{score}".ljust(3).rjust(6)
+    elif score - int(score) > 0:
+        return f"{score}".rjust(6)

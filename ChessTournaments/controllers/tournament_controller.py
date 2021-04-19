@@ -459,17 +459,21 @@ class TournamentListController:
 
 class GenerateTournamentsReportsController:
 
-    def __init__(self):
+    def __init__(self, tournament_number=None):
         self.menu = Menu()
         self._view_tournament = TournamentListView()
         self._view_report = GenerateReportsMenuView(self.menu)
+        self.tournament_number = tournament_number
 
     def __call__(self):
-        # Show the tournament list
-        self._view_tournament.show_tournaments(Tournaments.tournaments)
+        if self.tournament_number is None:
+            # Show the tournament list
+            self._view_tournament.show_tournaments(Tournaments.tournaments)
 
-        # Ask tournament choice
-        choice = self._view_tournament.get_tournament_choice()
+            # Ask tournament choice
+            choice = self._view_tournament.get_tournament_choice()
+        else:
+            choice = self.tournament_number
 
         # Generate the reports menu
         self.menu.add(
@@ -478,26 +482,34 @@ class GenerateTournamentsReportsController:
             f"n°{choice + 1} par ordre alphabétique",
             TournamentsReportsListController(
                 Tournaments.tournaments[choice],
-                "Name"))
+                "Name",
+                choice))
         self.menu.add(
             "auto",
             "Afficher tous les joueurs du tournoi "
             f"n°{choice + 1} par classement",
             TournamentsReportsListController(
                 Tournaments.tournaments[choice],
-                "Ranking"))
+                "Ranking",
+                choice))
         self.menu.add(
             "auto",
             f"Afficher tous les tours du tournoi n°{choice + 1}.",
             TournamentsReportsListController(
                 Tournaments.tournaments[choice],
-                "Turn"))
+                "Turn",
+                choice))
         self.menu.add(
             "auto",
             f"Afficher tous les matchs du tournoi n°{choice + 1}",
             TournamentsReportsListController(
                 Tournaments.tournaments[choice],
-                "Match"))
+                "Match",
+                choice))
+        self.menu.add(
+            "auto",
+            "Revenir à la liste des rapports",
+            main_controllers.GenerateReportsController())
         self.menu.add(
             "a",
             "Allez au menu d'acceuil",
@@ -517,7 +529,7 @@ class GenerateTournamentsReportsController:
 
 class TournamentsReportsListController:
 
-    def __init__(self, tournament, list_filter):
+    def __init__(self, tournament, list_filter, choice):
         self._view = TournamentsReportsListView(list_filter)
         self.list_filter = list_filter
         if list_filter == "Name":
@@ -525,14 +537,15 @@ class TournamentsReportsListController:
         elif list_filter == "Ranking":
             self.tournament_report = self._sort_player_by_ranking(tournament)
         elif list_filter == "Turn" or list_filter == "Match":
-            self.tournament_report = self._get_turns(tournament)
+            self.tournament_report = tournament.turns
+        self.choice = choice
 
     def __call__(self):
         # Show the tournament report
         self._view.show_report(self.tournament_report, self.list_filter)
 
         # Return to the Tournaments Reports controller
-        return main_controllers.GenerateReportsController()
+        return GenerateTournamentsReportsController(self.choice)
 
     def _sort_player_by_name(self, tournament):
         players = []
@@ -547,6 +560,3 @@ class TournamentsReportsListController:
             players.append(Players.get_player_by_id(player_id))
         players.sort(reverse=True)
         return players
-
-    def _get_turns(self, tournament):
-        return tournament.turns

@@ -634,6 +634,7 @@ class TournamentResult(NewTournamentFormView):
         print("\n" + text_left_side_offset_view + "Classement des joueurs :")
         players_list = self._sort_by_score(tournament)
         for player, score in players_list:
+            score = view_utils.score_padding(score)
             player = (
                 player.name
                 + " "
@@ -660,7 +661,7 @@ class TournamentResult(NewTournamentFormView):
         players_list = []
         for player_id in tournament.players:
             player = Players.get_player_by_id(player_id)
-            score = str(tournament.get_player_score(player))
+            score = tournament.get_player_score(player)
             players_list.append((player, score))
         players_list.sort(key=lambda x: (x[1], x[0]), reverse=True)
         return players_list
@@ -685,7 +686,7 @@ class TournamentResult(NewTournamentFormView):
             max_lenght.append(
                 len(player)
                 + TEXT_LEFT_SIDE_OFFSET
-                + len(" (dd/mm/yyyy)   11.5")
+                + len(" (dd/mm/yyyy)   XX.X")
                 )
         max_lenght.append(
             len("Contrôle du temps : ")
@@ -749,7 +750,8 @@ class TournamentsReportsListView:
             + f"Prénom : {player.firstname}")
         print(
             text_left_side_offset_view
-            + f"Date de naissance : {datetime_to_str(player.birthday)}")
+            + "Date de naissance : "
+            + datetime_to_str(player.birthday))
         print(
             text_left_side_offset_view
             + f"Sexe: {player.sex}")
@@ -758,17 +760,20 @@ class TournamentsReportsListView:
             + f"Rank: {str(player.rank)}\n")
 
     def _show_turns(self, tournament_report):
+        result = {}
         max_lenght_name, max_lenght_firstname = self._max_lenght_turn(
             tournament_report)
         max_lenght_name = max(len("Nom"), max_lenght_name) + 4
         max_lenght_firstname = max(len("Prénom"), max_lenght_firstname) + 4
         lenght_birthday = len("Date de naissance")
+        lenght_score = len("Score") + 2
         max_lenght = (
             len(text_left_side_offset_view)
             + len("Round") + 6
             + max_lenght_name
             + max_lenght_firstname
             + lenght_birthday
+            + lenght_score
         )
         label = "Liste des tours de ce tournoi"
         menu_frame, menu_label = view_utils.menu_frame_design(
@@ -783,28 +788,81 @@ class TournamentsReportsListView:
             + " " * 6
             + "Nom".ljust(max_lenght_name)
             + "Prénom".ljust(max_lenght_firstname)
-            + "Date de naissance")
+            + "Date de naissance"
+            + "  Score")
         for turn in tournament_report:
             turn_number = turn.current_round
             for match in turn.matchs:
                 player_1 = match[0][0]
                 player_2 = match[1][0]
+                score_1 = match[0][1]
+                result = self._update_score(player_1, score_1, result)
                 self._show_player_in_turn(
                     turn_number,
                     player_1,
+                    result,
                     max_lenght_name,
-                    max_lenght_firstname)
+                    max_lenght_firstname,
+                    lenght_birthday)
                 if not player_2 == "":
+                    score_2 = match[1][1]
+                    result = self._update_score(player_2, score_2, result)
                     self._show_player_in_turn(
                         turn_number,
                         player_2,
+                        result,
                         max_lenght_name,
-                        max_lenght_firstname)
+                        max_lenght_firstname,
+                        lenght_birthday)
             print()
+        print(menu_frame)
+        print(menu_frame)
+        self._show_result(
+            result,
+            max_lenght_name,
+            max_lenght_firstname,
+            lenght_birthday)
         print(menu_frame, end="\n\n")
 
-    def _show_match(self, tournament_report):
-        pass
+    def _show_player_in_turn(
+            self,
+            turn_number,
+            player,
+            result,
+            max_lenght_name,
+            max_lenght_firstname,
+            lenght_birthday):
+        print(
+            text_left_side_offset_view
+            + turn_number
+            + " " * 4
+            + f"{player.name}".ljust(max_lenght_name)
+            + f"{player.firstname}".ljust(max_lenght_firstname)
+            + datetime_to_str(player.birthday).ljust(lenght_birthday)
+            + view_utils.score_padding(result[
+                Players.get_player_id(player)])
+        )
+
+    def _show_result(
+            self,
+            result,
+            max_lenght_name,
+            max_lenght_firstname,
+            lenght_birthday):
+        players_list = []
+        for player_id, score in result.items():
+            players_list.append((Players.get_player_by_id(player_id), score))
+        players_list.sort(key=lambda x: (x[1], x[0]), reverse=True)
+        for player, score in players_list:
+            print(
+                text_left_side_offset_view
+                + " " * len("Round X    ")
+                + f"{player.name}".ljust(max_lenght_name)
+                + f"{player.firstname}".ljust(max_lenght_firstname)
+                + datetime_to_str(player.birthday).ljust(lenght_birthday)
+                + view_utils.score_padding(result[
+                    Players.get_player_id(player)])
+            )
 
     def _no_turn_yet(self):
         label = "Ce tournoi n'a pas encore démarré."
@@ -815,54 +873,60 @@ class TournamentsReportsListView:
         print(menu_label)
         print(menu_frame, end="\n\n")
 
-    def _show_player_in_turn(
-            self,
-            turn_number,
-            player,
-            max_lenght_name,
-            max_lenght_firstname):
+    def _show_match(self, tournament_report):
+        width = self._max_lenght_match(tournament_report)
+        label = "Liste des matchs et score de ce tournoi"
+        menu_frame, menu_label = view_utils.menu_frame_design(
+            label,
+            width)
+        width = max(width, len(menu_frame))
+        print("\n" + menu_frame)
+        print(menu_label)
+        print(menu_frame, end="")
+        for turn in tournament_report:
+            turn_number = turn.current_round
+            print()
+            for match in turn.matchs:
+                self._show_peer(match, turn_number, width - 3)
+        print("\n", menu_frame, end="\n\n")
+
+    def _show_peer(self, match, turn_number, width):
+        player_1 = match[0][0]
+        player_2 = match[1][0]
+        player_1 = (
+            f"{player_1.name} {player_1.firstname} ("
+            + datetime_to_str(player_1.birthday)
+            + ")")
+        len_player_1 = len(
+            text_left_side_offset_view
+            + player_1
+        )
+        score_1 = view_utils.score_padding(match[0][1])
+
         print(
             text_left_side_offset_view
-            + turn_number
-            + " " * 4
-            + f"{player.name}".ljust(max_lenght_name)
-            + f"{player.firstname}".ljust(max_lenght_firstname)
-            + f"{datetime_to_str(player.birthday)}"
-        )
-
-    def _show_peer(self, peer_list, turn_number):
-        # width = self._peers_lenght(peer_list)
-
-        # menu_frame, menu_label = view_utils.menu_frame_design(
-        #     f"\nListe des pairs pour le tour n°{turn_number}",
-        #     width)
-        # width = max(len(menu_frame), width)
-        # print("\n" + menu_frame)
-        # print(menu_label)
-        # print(menu_frame)
-        # for player_1, player_2 in peer_list:
-        #     player_one = (
-        #         f"{player_1.name} {player_1.firstname} ("
-        #         + datetime_to_str(player_1.birthday) + ")")
-        #     if not player_2 == "":
-        #         player_two = (
-        #             f"{player_2.name} {player_2.firstname} ("
-        #             + datetime_to_str(player_2.birthday) + ")")
-        #         print(
-        #             "\n" + player_one.center(width)
-        #             + "\n" + "VS".center(width)
-        #             + "\n" + player_two.center(width)
-        #             + "\n"
-        #             )
-        #     else:
-        #         print(
-        #             "\n" + player_one.center(width)
-        #             + "\n" +
-        #             "ne joue pas ce tour-ci.".center(width)
-        #             )
-
-        # print(menu_frame)
-        pass
+            + turn_number + "\n"
+            + text_left_side_offset_view
+            + first_indent_view
+            + player_1
+            + score_1.rjust(width - len_player_1))
+        if not player_2 == "":
+            player_2 = (
+                f"{player_2.name} {player_2.firstname} ("
+                + datetime_to_str(player_2.birthday)
+                + ")")
+            len_player_2 = len(
+                text_left_side_offset_view
+                + player_2
+            )
+            score_2 = view_utils.score_padding(match[1][1])
+            print(
+                text_left_side_offset_view
+                + first_indent_view
+                + player_2
+                + score_2.rjust(width - len_player_2))
+        else:
+            print("ne joue pas ce tour-ci.".center(width))
 
     def _max_lenght_player(self, player):
         offset = len(text_left_side_offset_view)
@@ -895,18 +959,37 @@ class TournamentsReportsListView:
                     max_lenght_firstname)
         return max_lenght_name, max_lenght_firstname
 
-    def _max_lenght_peer(self, peer_list):
+    def _max_lenght_match(self, turns):
         width = 0
-        for peer in peer_list:
-            for player_1, player_2 in peer:
-                width_1 = len(
-                    f"{player_1.name} {player_1.firstname} ("
-                    + datetime_to_str(player_1.birthday) + ")") + 2
+        for turn in turns:
+            for match in turn.matchs:
+                player_1 = match[0][0]
+                player_2 = match[1][0]
+                player_1 = (
+                    f"{player_1.name} {player_1.firstname} "
+                    + "(dd/mm/yyyy)")
+                len_player_1 = len(
+                    text_left_side_offset_view
+                    + first_indent_view
+                    + player_1
+                )
+                len_player_2 = 0
                 if not player_2 == "":
-                    width_2 = len(
-                        f"{player_2.name} {player_2.firstname} ("
-                        + datetime_to_str(player_2.birthday) + ")") + 2
-                    width = max(width_1, width_2, width)
-                else:
-                    width = max(width_1, width)
-        return width
+                    player_2 = (
+                        f"{player_2.name} {player_2.firstname} "
+                        + "(dd/mm/yyyy)")
+                    len_player_2 = len(
+                        text_left_side_offset_view
+                        + first_indent_view
+                        + player_2
+                    )
+                width = max(len_player_1, len_player_2, width)
+        return len(text_left_side_offset_view) + width + len("  XX.X")
+
+    def _update_score(self, player, score, result):
+        player_id = Players.get_player_id(player)
+        if player_id in result:
+            result[player_id] += score
+        else:
+            result[player_id] = score
+        return result

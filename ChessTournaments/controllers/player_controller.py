@@ -9,8 +9,7 @@ from ..views.menu_views import (
 from ..views.player_views import (
     AddPlayerView,
     PlayerListView,
-    PlayerRankingUpdateView,
-    PlayersReportsView
+    PlayerRankingUpdateView
     )
 
 
@@ -188,11 +187,21 @@ class PlayerRankingUpdateController:
             player_filter)
 
 
-class ShowPlayerController:
+class ShowPlayerController(PlayerListController):
 
     def __init__(self, list_order):
-        self._view = PlayersReportsView(list_order)
+        self._view = PlayerListView()
         self.list_order = list_order
 
     def __call__(self):
-        pass
+        # Generate the ordered player list
+        if self.list_order == "Ranking":
+            players_list = self._sort_by_ranking()
+        elif self.list_order == "Name":
+            players_list = self._sort_by_name()
+
+        # Show the players list
+        self._view.show_players(players_list)
+
+        # Return to the Tournaments Reports controller
+        return main_controllers.GenerateReportsController()

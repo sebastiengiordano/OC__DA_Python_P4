@@ -21,7 +21,7 @@ class AddPlayerView:
                 "\n" + text_left_side_offset_view
                 + "- le nom du joueur")
             player_name = input("   " + input_label)
-            if not valid_name(player_name):
+            if not valid_name(player_name) or player_name == "":
                 view_utils.alert_message_centered(
                     "Format invalide.",
                     "Le nom ne doit être",
@@ -34,7 +34,7 @@ class AddPlayerView:
             "\n" + text_left_side_offset_view
             + "- le prénom du joueur")
         player_firstname = input("   " + input_label)
-        if not valid_name(player_firstname):
+        if not valid_name(player_firstname) or player_firstname == "":
             view_utils.alert_message_centered(
                 "Format invalide.",
                 "Le prénom ne doit être",
@@ -223,9 +223,3 @@ class PlayerRankingUpdateView:
 
             print("\n /** Veuillez entrer o pour oui, **\\", end="")
             print("\n /**                 n pour non. **\\")
-
-
-class PlayersReportsView:
-
-    def __init__(self, list_order):
-        self.list_order = list_order
