@@ -34,8 +34,8 @@ def datetime_to_str(date):
     '''
     if isinstance(date, datetime.date):
         str_date = (
-            str(date.day) + "/"
-            + str(date.month) + "/"
+            f"{date.day:0>2d}/"
+            + f"{date.month:0>2d}/"
             + str(date.year)
             )
         return str_date

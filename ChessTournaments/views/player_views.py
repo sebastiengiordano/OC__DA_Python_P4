@@ -223,3 +223,9 @@ class PlayerRankingUpdateView:
 
             print("\n /** Veuillez entrer o pour oui, **\\", end="")
             print("\n /**                 n pour non. **\\")
+
+
+class PlayersReportsView:
+
+    def __init__(self, list_order):
+        self.list_order = list_order

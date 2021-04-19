@@ -90,3 +90,9 @@ class ChoicePlayerMenuView(MenuView):
     def __init__(self, menu):
         super().__init__(menu)
         self._menu_name = "Valider le choix du joueur."
+
+
+class GenerateReportsMenuView(MenuView):
+    def __init__(self, menu):
+        super().__init__(menu)
+        self._menu_name = "Générer des rapports."

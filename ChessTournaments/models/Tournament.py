@@ -99,6 +99,8 @@ class Tournament:
     -------
     time_control_type() :
         Return the time control type of this tournament.
+    turns():
+        Return the list of turn of tournament.
     serialize() :
         Method used to cast tournament information in str or int type.
         Return a dict() of these informations.
@@ -145,6 +147,12 @@ class Tournament:
         '''Return the time control type of this kind of tournament.
         '''
         return self._time_control_type
+
+    @property
+    def turns(self):
+        '''Return the list of turn of tournament.
+        '''
+        return self._turns
 
     def serialize(self):
         '''Method used to cast tournament information in str or int type.
