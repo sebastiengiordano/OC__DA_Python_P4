@@ -176,7 +176,7 @@ class Tournament:
         return tournament
 
     @classmethod
-    def deserialize(self, serialized_tournament):
+    def deserialize(cls, serialized_tournament):
         '''Classmethod used to restore tournament information come from
         serialized tournament data.
         '''
@@ -199,7 +199,7 @@ class Tournament:
         return tournament
 
     @classmethod
-    def query_filter(self, tournament):
+    def query_filter(cls, tournament):
         '''Return a Query objet to search a specific
         tournament in a TinyDB.
         '''
@@ -335,7 +335,7 @@ class Turn:
         return turn
 
     @classmethod
-    def deserialize(self, serialized_turn):
+    def deserialize(cls, serialized_turn):
         '''Classmethod used to restore turn information come from
         serialized turn data.
         '''
