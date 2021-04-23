@@ -1,6 +1,15 @@
+'''Tools used for display purpose.
+
+Functions:
+    menu_frame_design
+    alert_message_centered
+    score_padding
+
+'''
+
+
 def menu_frame_design(menu_name, width_menu):
-    '''This function return the frame of a menu.
-    '''
+    '''This function return the frame of a menu.'''
 
     # Add blank around menu name
     menu_name = "*  " + menu_name + "  *"
@@ -28,6 +37,9 @@ def menu_frame_design(menu_name, width_menu):
 
 
 def alert_message_centered(*args):
+    '''This function display a centered message
+    with a specific frame for warning the user.'''
+
     max_size = 0
     print("")
     for elem in args:
@@ -47,6 +59,9 @@ def alert_message_centered(*args):
 
 
 def score_padding(score):
+    '''Display an aligned score (integer or float)
+    with two space before.'''
+
     if score - int(score) <= 0.001:
         score = int(score)
         return f"{score}".ljust(3).rjust(6)

@@ -1,3 +1,20 @@
+'''Controller link to tournament management.
+
+Classes:
+    NewTournamentController
+    NewTournamentFormController
+    NewTournamentStartController
+    ChoiceTournamentController
+    StartTournamentController
+    TournamentListController
+    GenerateTournamentsReportsController
+    TournamentsReportsListController
+
+Functions:
+    new_tournament_add_player_controller
+
+'''
+
 from datetime import date
 
 from . import main_controllers
@@ -6,7 +23,7 @@ from ..views.tournament_view import (
     StartTournamentView,
     NewTournamentAddPlayerView,
     TournamentListView,
-    TournamentResult,
+    TournamentResultView,
     TournamentsReportsListView
     )
 from ..views.menu_views import (
@@ -23,6 +40,12 @@ from ..models.Tournament import Tournaments
 
 
 class NewTournamentController:
+    '''Controller which ask for the creation of a new tournament
+
+    The user can also go back to home menu or quit the application.
+
+    '''
+
     def __init__(self):
         self.menu = Menu()
         self._view = NewTournamentMenuView(self.menu)
@@ -50,7 +73,126 @@ class NewTournamentController:
         return user_choice.handler
 
 
+class NewTournamentFormController:
+    '''Controller link to NewTournamentController.
+    Aim to create a new tournament.
+    '''
+
+    def __init__(self):
+        self._view = NewTournamentFormView()
+
+    def __call__(self):
+        # Ask for tournament setup
+        tournament = self._view.get_user_setup()
+
+        # Show tournament summary
+        self._view.new_tournament_summary(tournament)
+
+        # Ask user validation
+        # (verfication that the tournament has no mistake)
+        user_validation = self._view.get_user_validation()
+        if not user_validation:
+            return main_controllers.HomeMenuController()
+
+        # Save the tournament setup
+        Tournaments.add_tournament(tournament)
+
+        # Ask user choice (start tournament / back to main menu)
+        return NewTournamentStartController(tournament)
+
+
+def new_tournament_add_player_controller():
+    '''Controller used to simplify adding new players in a tournament.'''
+
+    _view = NewTournamentAddPlayerView()
+    _players_list = []
+    numbers_of_players = 0
+
+    while True:
+        numbers_of_players += 1
+        player_added = False
+        # Ask for player name
+        name = _view.get_player_name(numbers_of_players)
+        if name == "":
+            return _players_list
+
+        # Check if this name is already in Players.players list
+        players_with_same_name = Players.is_player_exist(name)
+        if len(players_with_same_name) > 0:
+            # There is at least one player with the same name
+            #   Ask if one of this(these) player(s) is the player
+            #   which participate to these tournament
+            player_choice = _view.ask_if_player_in_list(players_with_same_name)
+            if player_choice in range(len(players_with_same_name)):
+                player_added = True
+                player_id = Players.get_player_id(
+                    players_with_same_name[player_choice])
+                _players_list.append(player_id)
+
+        if not player_added:
+            # This is a new player, add to the tournament players list
+            # and to the db_players.json
+            #   Ask for its firstname
+            firstname = _view.get_player_firstname()
+            #   Ask for its birthday
+            birthday = _view.get_player_birthday()
+            #   Ask for its sex
+            sex = _view.get_player_sex()
+            #   Ask for its rank
+            rank = _view.get_player_rank()
+            #   Add to the tournament players list and to db_players.json
+            player = Player(name, firstname, birthday, sex, rank)
+            _players_list.append(Players.add_player(player))
+
+
+class NewTournamentStartController:
+    '''Controller link to NewTournamentFormController.
+
+    When the tournament is created, ask to the user if he want to:
+        Start the tournament
+        Go back to home menu
+        Quit the application
+
+    '''
+
+    def __init__(self, tournament):
+        self.tournament = tournament
+        self.menu = Menu()
+        self._view = NewTournamentStartMenuView(self.menu)
+
+    def __call__(self):
+        # Generate the new tournament start menu
+        self.menu.add(
+            "auto",
+            "Lancer le tournoi",
+            StartTournamentController(self.tournament))
+        self.menu.add(
+            "a",
+            "Allez au menu d'acceuil",
+            main_controllers.HomeMenuController())
+        self.menu.add(
+            "q",
+            "Quitter l'application",
+            main_controllers.ExitApplicationController())
+
+        # Ask user choice
+        user_choice = self._view.get_user_choice()
+
+        # Return the controller link to user choice
+        # to the main controller
+        return user_choice.handler
+
+
 class ChoiceTournamentController:
+    '''Controller used to let the user choice a tournament.
+
+    Let the user choose of the kind of display :
+        All tournament (sorted or not)
+        Tournament not yet finished
+
+    The user can also go back to home menu or quit the application.
+
+    '''
 
     def __init__(self):
         self.menu = Menu()
@@ -96,13 +238,22 @@ class ChoiceTournamentController:
 
 
 class StartTournamentController:
+    '''Controller which manage a tournament.
+
+    Check if the tournament is not over.
+    Then generate the list of peer of the turn in progress.
+    Ask, for each peer, the match result.
+    Update the tournament in database.
+    Ask to the user if the tournament continu or
+    if he want to go back to home menu or quit the application.
+
     '''
-    '''
+
     def __init__(self, tournament):
         self.menu = Menu()
         self._tournament = tournament
         self._view = StartTournamentView()
-        self._view_result = TournamentResult()
+        self._view_result = TournamentResultView()
 
     def __call__(self):
         # Tournament terminated
@@ -256,104 +407,15 @@ class StartTournamentController:
         return user_choice.handler
 
 
-class NewTournamentFormController:
-
-    def __init__(self):
-        self._view = NewTournamentFormView()
-
-    def __call__(self):
-        # Ask for tournament setup
-        tournament = self._view.get_user_setup()
-
-        # Show tournament summary
-        self._view.new_tournament_summary(tournament)
-
-        # Ask user validation
-        # (verfication that the tournament has no mistake)
-        user_validation = self._view.get_user_validation()
-        if not user_validation:
-            return main_controllers.HomeMenuController()
-
-        # Save the tournament setup
-        Tournaments.add_tournament(tournament)
-
-        # Ask user choice (start tournament / back to main menu)
-        return NewTournamentStartController(tournament)
-
-
-class NewTournamentStartController:
-
-    def __init__(self, tournament):
-        self.tournament = tournament
-        self.menu = Menu()
-        self._view = NewTournamentStartMenuView(self.menu)
-
-    def __call__(self):
-        # Generate the new tournament start menu
-        self.menu.add(
-            "auto",
-            "Lancer le tournoi",
-            StartTournamentController(self.tournament))
-        self.menu.add(
-            "a",
-            "Allez au menu d'acceuil",
-            main_controllers.HomeMenuController())
-        self.menu.add(
-            "q",
-            "Quitter l'application",
-            main_controllers.ExitApplicationController())
-
-        # Ask user choice
-        user_choice = self._view.get_user_choice()
-
-        # Return the controller link to user choice
-        # to the main controller
-        return user_choice.handler
-
-
-def new_tournament_add_player_controller():
-    _view = NewTournamentAddPlayerView()
-    _players_list = []
-    numbers_of_players = 0
-
-    while True:
-        numbers_of_players += 1
-        player_added = False
-        # Ask for player name
-        name = _view.get_player_name(numbers_of_players)
-        if name == "":
-            return _players_list
-
-        # Check if this name is already in Players.players list
-        players_with_same_name = Players.is_player_exist(name)
-        if len(players_with_same_name) > 0:
-            # There is at least one player with the same name
-            #   Ask if one of this(these) player(s) is the player
-            #   which participate to these tournament
-            player_choice = _view.ask_if_player_in_list(players_with_same_name)
-            if player_choice in range(len(players_with_same_name)):
-                player_added = True
-                player_id = Players.get_player_id(
-                    players_with_same_name[player_choice])
-                _players_list.append(player_id)
-
-        if not player_added:
-            # This is a new player, add to the tournament players list
-            # and to the db_players.json
-            #   Ask for its firstname
-            firstname = _view.get_player_firstname()
-            #   Ask for its birthday
-            birthday = _view.get_player_birthday()
-            #   Ask for its sex
-            sex = _view.get_player_sex()
-            #   Ask for its rank
-            rank = _view.get_player_rank()
-            #   Add to the tournament players list and to db_players.json
-            player = Player(name, firstname, birthday, sex, rank)
-            _players_list.append(Players.add_player(player))
-
-
 class TournamentListController:
+    '''Controller linked to ChoiceTournamentController that
+    aim to show a sorted or filtering list of tournament
+    and let the user choose between the following choice:
+        Start the choosen tournament
+        Go back to home menu
+        Quit the application
+
+    '''
 
     def __init__(self, list_filter=None):
         self.menu = Menu()
@@ -458,6 +520,8 @@ class TournamentListController:
 
 
 class GenerateTournamentsReportsController:
+    '''Controller link to GenerateReportsController that aim
+    to let the user to choose reports link to tournament'''
 
     def __init__(self, tournament_number=None):
         self.menu = Menu()
@@ -528,6 +592,14 @@ class GenerateTournamentsReportsController:
 
 
 class TournamentsReportsListController:
+    '''Controller link to GenerateTournamentsReportsController
+    that aim to show the choosen tournament report then let the
+    user choose another kind of report about this tournament,
+    or go back to the list of all kind of report,
+    or to go back to home menu,
+    or to quit the application.
+
+    '''
 
     def __init__(self, tournament, list_filter, choice):
         self._view = TournamentsReportsListView(list_filter)

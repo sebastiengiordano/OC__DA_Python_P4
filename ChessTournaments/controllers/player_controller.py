@@ -1,3 +1,14 @@
+'''Controller link to players management.
+
+Classes:
+    RankingUpdateController
+    PlayerListController
+    PlayerRankingUpdateController
+    AddPlayerController
+    ShowPlayerController
+
+'''
+
 from tinydb import TinyDB, Query
 
 from . import main_controllers
@@ -14,6 +25,8 @@ from ..views.player_views import (
 
 
 class RankingUpdateController:
+    '''Controller which generate the ranking update menu,
+    ask the user choice, then return the linked controller.'''
 
     def __init__(self):
         self.menu = Menu()
@@ -54,40 +67,10 @@ class RankingUpdateController:
         return user_choice.handler
 
 
-class AddPlayerController:
-
-    def __init__(self):
-        self._players = Players.players
-        self._view = AddPlayerView()
-
-    def __call__(self):
-        player_added = False
-        # Ask for player name
-        name = self._view.get_player_name()
-
-        # Check if this name is already in Players.players list
-        players_with_same_name = Players.is_player_exist(name)
-        if len(players_with_same_name) > 0:
-            # There is at least one player with the same name
-            #   Ask if one of this(these) player(s) is the player
-            #   the user want to add
-            player_added = self._view.ask_if_player_in_list(
-                players_with_same_name)
-
-        if not player_added:
-            #   This is a new player, add to the Players.players list
-            firstname = self._view.get_player_firstname()
-            birthday = self._view.get_player_birthday()
-            sex = self._view.get_player_sex()
-            rank = self._view.get_player_rank()
-            Players.add_player(
-                Player(name, firstname, birthday, sex, rank))
-
-        # Go back to main menu
-        return main_controllers.HomeMenuController()
-
-
 class PlayerListController:
+    '''Controller link to RankingUpdateController which show the sorted
+    player list, ask which player to update or if the user want to go back
+    to an upper menu, then return the appropriate controller'''
 
     def __init__(self, list_filter=None):
         self.menu = Menu()
@@ -147,6 +130,7 @@ class PlayerListController:
 
 
 class PlayerRankingUpdateController:
+    '''Controller used to update the ranking of one player.'''
 
     def __init__(self, player):
         self._player = player
@@ -187,7 +171,45 @@ class PlayerRankingUpdateController:
             player_filter)
 
 
+class AddPlayerController:
+    '''Controller which manages the addition of a new player,
+    then return the HomeMenuController.'''
+
+    def __init__(self):
+        self._players = Players.players
+        self._view = AddPlayerView()
+
+    def __call__(self):
+        player_added = False
+        # Ask for player name
+        name = self._view.get_player_name()
+
+        # Check if this name is already in Players.players list
+        players_with_same_name = Players.is_player_exist(name)
+        if len(players_with_same_name) > 0:
+            # There is at least one player with the same name
+            #   Ask if one of this(these) player(s) is the player
+            #   the user want to add
+            player_added = self._view.ask_if_player_in_list(
+                players_with_same_name)
+
+        if not player_added:
+            #   This is a new player, add to the Players.players list
+            firstname = self._view.get_player_firstname()
+            birthday = self._view.get_player_birthday()
+            sex = self._view.get_player_sex()
+            rank = self._view.get_player_rank()
+            Players.add_player(
+                Player(name, firstname, birthday, sex, rank))
+
+        # Go back to main menu
+        return main_controllers.HomeMenuController()
+
+
 class ShowPlayerController(PlayerListController):
+    '''Controller call by GenerateReportsController
+    in order to show a sorted player list,
+    then return the HomeMenuController.'''
 
     def __init__(self, list_order):
         self._view = PlayerListView()

@@ -1,3 +1,5 @@
+'''Parameters for display purpose.'''
+
 MENU_LEFT_SIDE_OFFSET = 1
 TEXT_LEFT_SIDE_OFFSET = 4
 FIRST_INDENT = 2

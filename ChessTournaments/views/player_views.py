@@ -1,3 +1,12 @@
+'''View link to players management.
+
+Classes:
+    AddPlayerView
+    PlayerListView
+    PlayerRankingUpdateView
+
+'''
+
 import datetime
 
 from . import view_utils
@@ -14,6 +23,7 @@ from ..tools.tools_utils import (
 
 
 class AddPlayerView:
+    '''View used to manages the addition of a new player.'''
 
     def get_player_name(self):
         while True:
@@ -46,7 +56,7 @@ class AddPlayerView:
         while True:
             birthday = input(
                 "\n" + text_left_side_offset_view
-                + "- la date (au format jj/mm/aaaa)\n"
+                + "- sa date d'anniversaire (au format jj/mm/aaaa)\n"
                 + input_label)
             birthday = is_date_format(birthday)
             if isinstance(birthday, datetime.date):
@@ -140,6 +150,8 @@ class AddPlayerView:
 
 
 class PlayerListView:
+    '''View used to display a list of player
+    and let the user choose one of them.'''
 
     def show_players(self, players_list):
         self.number = 0
@@ -197,6 +209,7 @@ class PlayerListView:
 
 
 class PlayerRankingUpdateView:
+    '''View used to manage the ranking update of a player.'''
 
     def ask_for_new_ranking(self):
         while True:

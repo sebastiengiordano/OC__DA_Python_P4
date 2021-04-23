@@ -1,3 +1,12 @@
+'''Manage all the tournaments.
+
+Classes:
+    Tournaments
+    Tournament
+    Turn
+
+'''
+
 from tinydb import TinyDB, Query
 
 from ..models.Player import Players
@@ -9,19 +18,20 @@ class Tournaments:
 
     Class Attributes
     ----------
-        tournaments : []
-            List of instance of tournament
-            Update at init with data come from
-            'ChessTournaments/models/database/db_players.json'.
+    tournaments : []
+        List of instance of tournament
+        Update at init with data come from
+        'ChessTournaments/models/database/db_players.json'.
 
     Methods
     -------
-        init():
-            Deserialize all the tournaments in db_tournaments.json file
-            and save them in tournaments list.
-        add_tournament(tournament_to_add):
-            Add new tournament in Tournaments.tournaments
-            and db_tournaments.json.
+    init():
+        Deserialize all the tournaments in db_tournaments.json file
+        and save them in tournaments list.
+    add_tournament(tournament_to_add):
+        Add new tournament in Tournaments.tournaments
+        and db_tournaments.json.
+
     '''
 
     tournaments = []
@@ -48,8 +58,7 @@ class Tournaments:
 
     @classmethod
     def update_tournament(cls, tournament_updated):
-        '''Update a tournament in tournaments and db_tournaments.json.
-        '''
+        '''Update a tournament in tournaments and db_tournaments.json.'''
         db_tournaments = TinyDB(
             'ChessTournaments/models/database/db_tournaments.json')
         for index, tournament in enumerate(Tournaments.tournaments):
@@ -67,33 +76,33 @@ class Tournament:
 
     Attributes
     ----------
-        name : str
-            Name of the tournament.
-        location : str
-            Location of the tournament.
-        start_date : datetime.date
-            Start date of the tournament.
-        end_date : datetime.date
-            End date of the tournament.
-        numbers_of_turns : int
-            Number of rounds for this tournament.
-        players : []
-            List of players which participate to this tournament.
-            Stored according to their id in db_players.json
-        time_control : str
-            time control of the tournament.
-        description : str
-            Description of the tournament.
-        _turns : []
-            List which contains each turn of this tournaments
-        turn_in_progress : int
-            Indicate the turn which will be played.
-        score_by_player : []
-            List which contains lists for each players with their score.
-            Update after each turn (or at init to resume tournament)
-        players_opponent : {}
-            Dict which contains, for each players of this tournament,
-            all players already faced.
+    name : str
+        Name of the tournament.
+    location : str
+        Location of the tournament.
+    start_date : datetime.date
+        Start date of the tournament.
+    end_date : datetime.date
+        End date of the tournament.
+    numbers_of_turns : int
+        Number of rounds for this tournament.
+    players : []
+        List of players which participate to this tournament.
+        Stored according to their id in db_players.json
+    time_control : str
+        time control of the tournament.
+    description : str
+        Description of the tournament.
+    _turns : []
+        List which contains each turn of this tournaments
+    turn_in_progress : int
+        Indicate the turn which will be played.
+    score_by_player : []
+        List which contains lists for each players with their score.
+        Update after each turn (or at init to resume tournament)
+    players_opponent : {}
+        Dict which contains, for each players of this tournament,
+        all players already faced.
 
     Methods
     -------
@@ -121,6 +130,7 @@ class Tournament:
         matchs already performed.
     save_peers_results(peer_list, results):
         Save the results of the turn in progress.
+
     '''
 
     def __init__(self):
@@ -276,9 +286,10 @@ class Tournament:
     def save_peers_results(self, peer_list, results):
         '''Save the results of the turn in progress.
 
-            Instantiate a Turn
-            Append each match in Turn.matchs list
-            Add this Turn in _turns list
+        Instantiate a Turn
+        Append each match in Turn.matchs list
+        Add this Turn in _turns list
+
         '''
         turn = Turn(self.turn_in_progress, [])
         for peer, result in zip(peer_list, results):
@@ -291,21 +302,26 @@ class Turn:
 
     Attributes
     ----------
-        current_round : str
-            Indicate the current round.
-        matchs : []
-            List which contains each match of this turn
-                - a match is a tuple which contains two list
-                - each list constains:
-                    a instance of player
-                    its score for this match
-
+    current_round : str
+        Indicate the current round.
+    matchs : []
+        List which contains each match of this turn
+            - a match is a tuple which contains two list
+            - each list constains:
+                a instance of player
+                its score for this match
 
     Methods
     -------
-        add_tournament(tournament_to_add):
-            Add new tournament in Tournaments.tournaments
-            and db_tournaments.json.
+    serialize() :
+        Method used to cast turn information in str or int type.
+        Return a dict() of these informations.
+    deserialize(serialized_turn) :
+        Classmethod used to restore turn information come from
+        serialized turn data.
+    add_match(peer, result) :
+        Add a match to the list of matchs.
+
     '''
 
     def __init__(self, round_number, matchs):
@@ -315,8 +331,10 @@ class Turn:
     def serialize(self):
         '''Method used to cast turn information in str or int type.
 
-            Return a dict() of these informations.
+        Return a dict() of these informations.
+
         '''
+
         turn = {}
         turn["round"] = self.current_round
         matchs = []
@@ -339,6 +357,7 @@ class Turn:
         '''Classmethod used to restore turn information come from
         serialized turn data.
         '''
+
         current_round = serialized_turn["round"][6:]
         matchs = []
         for turn in serialized_turn["matchs"]:
@@ -359,6 +378,8 @@ class Turn:
         return Turn(current_round, matchs)
 
     def add_match(self, peer, result):
+        '''Add a match to the list of matchs.'''
+
         self.matchs.append((
             [peer[0], result[0]],
             [peer[1], result[1]]))

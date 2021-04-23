@@ -1,3 +1,15 @@
+'''View link to tournament management.
+
+Classes:
+    NewTournamentFormView
+    StartTournamentView
+    NewTournamentAddPlayerView
+    TournamentListView
+    TournamentResultView
+    TournamentsReportsListView
+
+'''
+
 import datetime
 
 from . import view_utils
@@ -21,6 +33,7 @@ from ..controllers import tournament_controller
 
 
 class NewTournamentFormView:
+    '''Form used to create a new chess tournament.'''
 
     def get_user_setup(self):
         tournament = Tournament.Tournament()
@@ -275,6 +288,7 @@ class NewTournamentFormView:
 
 
 class StartTournamentView:
+    '''View used for manage a tournament.'''
 
     def show_peer(self, peer_list, turn_number):
         width = self._peers_lenght(peer_list)
@@ -415,6 +429,7 @@ class StartTournamentView:
 
 
 class NewTournamentAddPlayerView:
+    '''View used when the user want to add a new player.'''
 
     def get_player_name(self, numbers_of_players):
         while True:
@@ -447,7 +462,7 @@ class NewTournamentAddPlayerView:
         while True:
             birthday = input(
                 "\n" + text_left_side_offset_view
-                + "- la date (au format jj/mm/aaaa)\n"
+                + "-sa date d'anniversaire (au format jj/mm/aaaa)\n"
                 + input_label)
             birthday = is_date_format(birthday)
             if isinstance(birthday, datetime.date):
@@ -542,6 +557,8 @@ class NewTournamentAddPlayerView:
 
 
 class TournamentListView(NewTournamentFormView):
+    '''View used to show a list of tournament and
+    allow the user to choose one of them.'''
 
     def show_tournaments(self, tournaments_list):
         self.number = 0
@@ -595,7 +612,9 @@ class TournamentListView(NewTournamentFormView):
         print(menu_frame)
 
 
-class TournamentResult(NewTournamentFormView):
+class TournamentResultView(NewTournamentFormView):
+    '''View used to show the result of a tournament
+    when it has just finished.'''
 
     def show_tournament_result(self, tournament):
         max_lenght = self.max_lenght(tournament)
@@ -698,6 +717,8 @@ class TournamentResult(NewTournamentFormView):
 
 
 class TournamentsReportsListView:
+    '''View used to show different kind of reports
+    related to a tournament previously choosen.'''
 
     def __init__(self, list_filter):
         self.list_filter = list_filter

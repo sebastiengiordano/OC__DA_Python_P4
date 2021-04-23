@@ -1,8 +1,29 @@
+'''View of all the menus.
+
+Classes:
+    MenuView
+    HomeMenuView
+    NewTournamentMenuView
+    NewTournamentStartMenuView
+    TurnMenuView
+    ChoiceTournamentMenuView
+    TournamentTerminatedMenuView
+    RankingUpdateMenuView
+    ChoicePlayerMenuView
+    GenerateReportsMenuView
+
+'''
+
 from . import view_utils
 from .views_parameters import input_label
 
 
 class MenuView:
+    '''Mother class of all other menus.
+
+    Aim to display the menu and get the user choice.
+
+    '''
 
     def __init__(self, menu):
         self.menu = menu
@@ -39,6 +60,7 @@ class MenuView:
 
 
 class HomeMenuView(MenuView):
+    '''Home menu view'''
 
     def __init__(self, menu):
         super().__init__(menu)
@@ -46,6 +68,7 @@ class HomeMenuView(MenuView):
 
 
 class NewTournamentMenuView(MenuView):
+    '''New tournament menu view'''
 
     def __init__(self, menu):
         super().__init__(menu)
@@ -53,6 +76,7 @@ class NewTournamentMenuView(MenuView):
 
 
 class NewTournamentStartMenuView(MenuView):
+    '''New tournament start menu view'''
 
     def __init__(self, menu):
         super().__init__(menu)
@@ -60,6 +84,7 @@ class NewTournamentStartMenuView(MenuView):
 
 
 class TurnMenuView(MenuView):
+    '''Turn menu view'''
 
     def __init__(self, menu, tour):
         super().__init__(menu)
@@ -67,6 +92,7 @@ class TurnMenuView(MenuView):
 
 
 class ChoiceTournamentMenuView(MenuView):
+    '''Choice tournament menu view'''
 
     def __init__(self, menu):
         super().__init__(menu)
@@ -74,6 +100,7 @@ class ChoiceTournamentMenuView(MenuView):
 
 
 class TournamentTerminatedMenuView(MenuView):
+    '''Tournament terminated menu view'''
 
     def __init__(self, menu):
         super().__init__(menu)
@@ -81,18 +108,24 @@ class TournamentTerminatedMenuView(MenuView):
 
 
 class RankingUpdateMenuView(MenuView):
+    '''Ranking update menu view'''
+
     def __init__(self, menu):
         super().__init__(menu)
         self._menu_name = "Mettre à jour les classements."
 
 
 class ChoicePlayerMenuView(MenuView):
+    '''Choice player menu view'''
+
     def __init__(self, menu):
         super().__init__(menu)
         self._menu_name = "Valider le choix du joueur."
 
 
 class GenerateReportsMenuView(MenuView):
+    '''Generate reports menu view'''
+
     def __init__(self, menu):
         super().__init__(menu)
         self._menu_name = "Générer des rapports."

@@ -1,3 +1,13 @@
+'''Controller for the Chess Tournaments.
+
+Classes:
+    ApplicationController
+    HomeMenuController
+    GenerateReportsController
+    ExitApplicationController
+
+'''
+
 from ..models.menus import Menu
 from ..models.Tournament import Tournaments
 from ..models.Player import Players
@@ -15,19 +25,38 @@ from .player_controller import (
 
 
 class ApplicationController:
+    '''Controller which call all other controllers.
+
+    All other controllers should return an instance of the
+    next controller according to the expected behavior.
+
+    '''
 
     def __init__(self):
+        '''Constructs the necessary attribute of ApplicationController.
+
+        Call Players.init() in order to recovered
+        the saved data link to players.
+
+        Call Tournaments.init() in order to recovered
+        the saved data link to tournament.
+
+        '''
         self.controller = None
         Players.init()
         Tournaments.init()
 
     def start(self):
+        '''Call the home menu and wait for the next controller to call'''
         self.controller = HomeMenuController()
         while self.controller:
             self.controller = self.controller()
 
 
 class HomeMenuController:
+    '''Controller which generate the home menu, ask the
+    user choice, then return the linked controller.'''
+
     def __init__(self):
         self.menu = Menu()
         self._view = HomeMenuView(self.menu)
@@ -68,6 +97,8 @@ class HomeMenuController:
 
 
 class GenerateReportsController:
+    '''Controller which generate the reports menu, ask the
+    user choice, then return the linked controller.'''
 
     def __init__(self):
         self.menu = Menu()
@@ -105,5 +136,6 @@ class GenerateReportsController:
 
 
 class ExitApplicationController:
+    '''Controller which aim to exit the application'''
     def __call__(self):
         return None

@@ -1,3 +1,10 @@
+'''Entry point of the application.
+
+Functions:
+    main
+
+'''
+
 from .controllers.main_controllers import ApplicationController
 
 

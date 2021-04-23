@@ -1,3 +1,13 @@
+'''Tools to check specific format and/or return
+variable into another kind of representation.
+
+Functions:
+    is_date_format
+    datetime_to_str
+    valid_name
+
+'''
+
 from re import compile
 import datetime
 
@@ -10,7 +20,9 @@ def is_date_format(string_to_test):
                 If its not the case a error message is sent.
                 Otherwise, the datetime is return
             Otherwise return none
+
     '''
+
     date_format = compile(r"^(\d?\d)\W(\d?\d)\W(\d{4})$")
     string_match = date_format.match(string_to_test)
     if string_match:
@@ -31,7 +43,9 @@ def datetime_to_str(date):
     Return the date with the following format:
         dd/mm/yyyy
     Otherwise return ""
+
     '''
+
     if isinstance(date, datetime.date):
         str_date = (
             f"{date.day:0>2d}/"
@@ -43,6 +57,9 @@ def datetime_to_str(date):
 
 
 def valid_name(name):
+    '''Check the format of a string which should
+    correspond to a name or a firstname.'''
+
     for elem in name:
         if not(
                 elem.isalpha()

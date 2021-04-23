@@ -1,3 +1,11 @@
+'''Manage all the players of the tournaments.
+
+Classes:
+    Players
+    Player
+
+'''
+
 from tinydb import TinyDB, Query
 import random
 
@@ -12,25 +20,26 @@ class Players:
 
     Class Attributes
     ----------
-        players : []
-            List of instance of Player
-            Update at init with data come from
-            'ChessTournaments/models/database/db_players.json'.
+    players : []
+        List of instance of Player
+        Update at init with data come from
+        'ChessTournaments/models/database/db_players.json'.
 
     Methods
     -------
-        init():
-            Deserialize all the players in db_players.json file
-            and save them in players list.
-        add_player(player_to_add):
-            Add new player in Players.players and db_players.json.
-        is_player_exist(name):
-            Classmethod which return a list which contains
-            all players with the same name.
-        get_player_by_id(id):
-            Return Player instance according to its id the db_players.json.
-        get_player_id(player):
-            Return the id of the player in the db_players.json.
+    init():
+        Deserialize all the players in db_players.json file
+        and save them in players list.
+    add_player(player_to_add):
+        Add new player in Players.players and db_players.json.
+    is_player_exist(name):
+        Classmethod which return a list which contains
+        all players with the same name.
+    get_player_by_id(id):
+        Return Player instance according to its id the db_players.json.
+    get_player_id(player):
+        Return the id of the player in the db_players.json.
+
     '''
 
     players = []
@@ -113,48 +122,49 @@ class Player:
 
     Attributes
     ----------
-        _name : str
-            Name of the player.
-        _firstname : str
-            Firstname of the player.
-        _birthday : datetime.date
-            Birthday of the player.
-        _sex : str
-            Sex of the player.
-        _rank : int
+    _name : str
+        Name of the player.
+    _firstname : str
+        Firstname of the player.
+    _birthday : datetime.date
+        Birthday of the player.
+    _sex : str
+        Sex of the player.
+    _rank : int
             Player ranking.
 
     Methods
     -------
-        name() :
-            Getter for the _name attribute.
-        firstname() :
-            Getter for the _firstname attribute.
-        birthday() :
-            Getter for the _birthday attribute.
-        sex() :
-            Getter for the _sex attribute.
-        rank() :
-            Getter and setter for the _rank attribute.
-        serialize() :
-            Method used to cast player information in str or int type.
-            Return a dict() of these informations.
-        deserialize(player) :
-            classmethod used to restore player information come from
-            'ChessTournaments/models/database/db_players.json'.
+    name() :
+        Getter for the _name attribute.
+    firstname() :
+        Getter for the _firstname attribute.
+    birthday() :
+        Getter for the _birthday attribute.
+    sex() :
+        Getter for the _sex attribute.
+    rank() :
+        Getter and setter for the _rank attribute.
+    serialize() :
+        Method used to cast player information in str or int type.
+        Return a dict() of these informations.
+    deserialize(player) :
+        classmethod used to restore player information come from
+        'ChessTournaments/models/database/db_players.json'.
 
     Special Methods
     -------
-        eq :
-            Compare the players name, firstname, birthday, sex.
-            If their equal, return true. Otherwise return False.
-        gt :
-            Compare the players rank, if their rank are different:
-                return True if this instance has greater rank
-                else return False
-            Otherwise return a random value between True or False.
-        len :
+    eq :
+        Compare the players name, firstname, birthday, sex.
+        If their equal, return true. Otherwise return False.
+    gt :
+        Compare the players rank, if their rank are different:
+            return True if this instance has greater rank
+            else return False
+        Otherwise return a random value between True or False.
+    len :
             Return the size of the name + firstname + blank space.
+
     '''
 
     def __init__(self, name, firstname, birthday, sex, rank=0):
