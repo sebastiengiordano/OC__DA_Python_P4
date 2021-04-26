@@ -29,32 +29,32 @@ class RankingUpdateController:
     ask the user choice, then return the linked controller.'''
 
     def __init__(self):
-        self.menu = Menu()
-        self._view = RankingUpdateMenuView(self.menu)
+        self._menu = Menu()
+        self._view = RankingUpdateMenuView(self._menu)
 
     def __call__(self):
         # Generate the reports menu
-        self.menu.add(
+        self._menu.add(
             "auto",
             "Afficher la liste des joueurs",
             PlayerListController())
-        self.menu.add(
+        self._menu.add(
             "auto",
             "Afficher la liste des joueurs par classement",
             PlayerListController("Ranking"))
-        self.menu.add(
+        self._menu.add(
             "auto",
             "Afficher la liste des joueurs par nom",
             PlayerListController("Name"))
-        self.menu.add(
+        self._menu.add(
             "auto",
             "Afficher la liste des joueurs par age",
             PlayerListController("Age"))
-        self.menu.add(
+        self._menu.add(
             "a",
             "Allez au menu d'acceuil",
             main_controllers.HomeMenuController())
-        self.menu.add(
+        self._menu.add(
             "q",
             "Quitter l'application",
             main_controllers.ExitApplicationController())
@@ -73,8 +73,8 @@ class PlayerListController:
     to an upper menu, then return the appropriate controller'''
 
     def __init__(self, list_filter=None):
-        self.menu = Menu()
-        self._menu_view = ChoicePlayerMenuView(self.menu)
+        self._menu = Menu()
+        self._menu_view = ChoicePlayerMenuView(self._menu)
         self._view = PlayerListView()
         if list_filter == "Ranking":
             self.players_list = self._sort_by_ranking()
@@ -93,15 +93,15 @@ class PlayerListController:
         choice = self._view.get_player_choice()
 
         # Generate the player ranking update menu
-        self.menu.add(
+        self._menu.add(
             "auto",
             f"Modifier le classement du joueur n°{choice + 1}",
             PlayerRankingUpdateController(self.players_list[choice]))
-        self.menu.add(
+        self._menu.add(
             "a",
             "Allez au menu d'acceuil",
             main_controllers.HomeMenuController())
-        self.menu.add(
+        self._menu.add(
             "q",
             "Quitter l'application",
             main_controllers.ExitApplicationController())
@@ -213,13 +213,13 @@ class ShowPlayerController(PlayerListController):
 
     def __init__(self, list_order):
         self._view = PlayerListView()
-        self.list_order = list_order
+        self._list_order = list_order
 
     def __call__(self):
         # Generate the ordered player list
-        if self.list_order == "Ranking":
+        if self._list_order == "Ranking":
             players_list = self._sort_by_ranking()
-        elif self.list_order == "Name":
+        elif self._list_order == "Name":
             players_list = self._sort_by_name()
 
         # Show the players list

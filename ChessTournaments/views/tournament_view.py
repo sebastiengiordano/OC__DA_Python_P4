@@ -720,9 +720,6 @@ class TournamentsReportsListView:
     '''View used to show different kind of reports
     related to a tournament previously choosen.'''
 
-    def __init__(self, list_filter):
-        self.list_filter = list_filter
-
     def show_report(self, tournament_report, list_filter):
         if list_filter == "Name":
             self._show_players(

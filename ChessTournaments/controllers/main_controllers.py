@@ -58,32 +58,32 @@ class HomeMenuController:
     user choice, then return the linked controller.'''
 
     def __init__(self):
-        self.menu = Menu()
-        self._view = HomeMenuView(self.menu)
+        self._menu = Menu()
+        self._view = HomeMenuView(self._menu)
 
     def __call__(self):
         # Generate the home menu
-        self.menu.add(
+        self._menu.add(
             "auto",
             "Créer un nouveau tournoi",
             NewTournamentController())
-        self.menu.add(
+        self._menu.add(
             "auto",
             "Lancer / Reprendre un tournoi",
             ChoiceTournamentController())
-        self.menu.add(
+        self._menu.add(
             "auto",
             "Mettre à jour les classements",
             RankingUpdateController())
-        self.menu.add(
+        self._menu.add(
             "auto",
             "Ajouter un joueur",
             AddPlayerController())
-        self.menu.add(
+        self._menu.add(
             "auto",
             "Générer des rapports",
             GenerateReportsController())
-        self.menu.add(
+        self._menu.add(
             "q",
             "Quitter l'application",
             ExitApplicationController())
@@ -101,28 +101,28 @@ class GenerateReportsController:
     user choice, then return the linked controller.'''
 
     def __init__(self):
-        self.menu = Menu()
-        self._view = GenerateReportsMenuView(self.menu)
+        self._menu = Menu()
+        self._view = GenerateReportsMenuView(self._menu)
 
     def __call__(self):
         # Generate the reports menu
-        self.menu.add(
+        self._menu.add(
             "auto",
             "Afficher tous les acteurs par ordre alphabétique",
             ShowPlayerController("Name"))
-        self.menu.add(
+        self._menu.add(
             "auto",
             "Afficher tous les acteurs par classement",
             ShowPlayerController("Ranking"))
-        self.menu.add(
+        self._menu.add(
             "auto",
             "Afficher tous les tournois",
             GenerateTournamentsReportsController())
-        self.menu.add(
+        self._menu.add(
             "a",
             "Allez au menu d'acceuil",
             HomeMenuController())
-        self.menu.add(
+        self._menu.add(
             "q",
             "Quitter l'application",
             ExitApplicationController())

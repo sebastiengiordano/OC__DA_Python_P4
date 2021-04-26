@@ -26,11 +26,11 @@ class MenuView:
     '''
 
     def __init__(self, menu):
-        self.menu = menu
+        self._menu = menu
         self._menu_name = ""
 
     def _display_menu(self):
-        key_max_lenght, option_max_lenght = self.menu.max_lenght()
+        key_max_lenght, option_max_lenght = self._menu.max_lenght()
         menu_frame, menu_label = view_utils.menu_frame_design(
             self._menu_name,
             key_max_lenght
@@ -39,7 +39,7 @@ class MenuView:
         print("\n" + menu_frame)
         print(menu_label)
         print(menu_frame)
-        for key, entry in self.menu.items():
+        for key, entry in self._menu.items():
             space_before_key = " " * (key_max_lenght - len(key))
             print(f"   {space_before_key}{key}: {entry.option}")
         print(menu_frame)
@@ -54,9 +54,9 @@ class MenuView:
             # Ask the user its choice
             choice = self._get_user_key()
             # Validate the user choice
-            if choice in self.menu:
+            if choice in self._menu:
                 # Return the user choice
-                return self.menu[choice]
+                return self._menu[choice]
 
 
 class HomeMenuView(MenuView):

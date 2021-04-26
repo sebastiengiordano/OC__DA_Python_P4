@@ -47,20 +47,20 @@ class NewTournamentController:
     '''
 
     def __init__(self):
-        self.menu = Menu()
-        self._view = NewTournamentMenuView(self.menu)
+        self._menu = Menu()
+        self._view = NewTournamentMenuView(self._menu)
 
     def __call__(self):
         # Generate the new tournament menu
-        self.menu.add(
+        self._menu.add(
             "auto",
             "Paramétrer le tournoi",
             NewTournamentFormController())
-        self.menu.add(
+        self._menu.add(
             "a",
             "Allez au menu d'acceuil",
             main_controllers.HomeMenuController())
-        self.menu.add(
+        self._menu.add(
             "q",
             "Quitter l'application",
             main_controllers.ExitApplicationController())
@@ -156,21 +156,21 @@ class NewTournamentStartController:
     '''
 
     def __init__(self, tournament):
-        self.tournament = tournament
-        self.menu = Menu()
-        self._view = NewTournamentStartMenuView(self.menu)
+        self._tournament = tournament
+        self._menu = Menu()
+        self._view = NewTournamentStartMenuView(self._menu)
 
     def __call__(self):
         # Generate the new tournament start menu
-        self.menu.add(
+        self._menu.add(
             "auto",
             "Lancer le tournoi",
-            StartTournamentController(self.tournament))
-        self.menu.add(
+            StartTournamentController(self._tournament))
+        self._menu.add(
             "a",
             "Allez au menu d'acceuil",
             main_controllers.HomeMenuController())
-        self.menu.add(
+        self._menu.add(
             "q",
             "Quitter l'application",
             main_controllers.ExitApplicationController())
@@ -195,36 +195,36 @@ class ChoiceTournamentController:
     '''
 
     def __init__(self):
-        self.menu = Menu()
-        self._view = ChoiceTournamentMenuView(self.menu)
+        self._menu = Menu()
+        self._view = ChoiceTournamentMenuView(self._menu)
 
     def __call__(self):
         # Generate the choice tournament menu
-        self.menu.add(
+        self._menu.add(
             "auto",
             "Afficher la liste des tournois",
             TournamentListController())
-        self.menu.add(
+        self._menu.add(
             "auto",
             "Afficher la liste des tournois en cours",
             TournamentListController("In_Progress"))
-        self.menu.add(
+        self._menu.add(
             "auto",
             "Afficher la liste des tournois par nom",
             TournamentListController("Name"))
-        self.menu.add(
+        self._menu.add(
             "auto",
             "Afficher la liste des tournois par lieu",
             TournamentListController("Location"))
-        self.menu.add(
+        self._menu.add(
             "auto",
             "Afficher la liste des tournois par date",
             TournamentListController("Date"))
-        self.menu.add(
+        self._menu.add(
             "a",
             "Allez au menu d'acceuil",
             main_controllers.HomeMenuController())
-        self.menu.add(
+        self._menu.add(
             "q",
             "Quitter l'application",
             main_controllers.ExitApplicationController())
@@ -250,7 +250,7 @@ class StartTournamentController:
     '''
 
     def __init__(self, tournament):
-        self.menu = Menu()
+        self._menu = Menu()
         self._tournament = tournament
         self._view = StartTournamentView()
         self._view_result = TournamentResultView()
@@ -369,16 +369,16 @@ class StartTournamentController:
 
     def _turn_menu_generation(self):
         self._turn_menu_view = TurnMenuView(
-            self.menu, self._tournament.turn_in_progress)
-        self.menu.add(
+            self._menu, self._tournament.turn_in_progress)
+        self._menu.add(
             "auto",
             "Lancer ce tour",
             StartTournamentController(self._tournament))
-        self.menu.add(
+        self._menu.add(
             "a",
             "Allez au menu d'acceuil",
             main_controllers.HomeMenuController())
-        self.menu.add(
+        self._menu.add(
             "q",
             "Quitter l'application",
             main_controllers.ExitApplicationController())
@@ -418,37 +418,37 @@ class TournamentListController:
     '''
 
     def __init__(self, list_filter=None):
-        self.menu = Menu()
-        self._menu_view = ChoiceTournamentMenuView(self.menu)
+        self._menu = Menu()
+        self._menu_view = ChoiceTournamentMenuView(self._menu)
         self._view = TournamentListView()
         if list_filter == "In_Progress":
-            self.tournaments_list = self._tournaments_in_progress()
+            self._tournaments_list = self._tournaments_in_progress()
         elif list_filter == "Name":
-            self.tournaments_list = self._sort_by_name()
+            self._tournaments_list = self._sort_by_name()
         elif list_filter == "Location":
-            self.tournaments_list = self._sort_by_location()
+            self._tournaments_list = self._sort_by_location()
         elif list_filter == "Date":
-            self.tournaments_list = self._sort_by_date()
+            self._tournaments_list = self._sort_by_date()
         else:
-            self.tournaments_list = Tournaments.tournaments
+            self._tournaments_list = Tournaments.tournaments
 
     def __call__(self):
         # Show the tournaments list
-        self._view.show_tournaments(self.tournaments_list)
+        self._view.show_tournaments(self._tournaments_list)
 
         # Ask tournament choice
         choice = self._view.get_tournament_choice()
 
         # Generate the tournament start menu
-        self.menu.add(
+        self._menu.add(
             "auto",
             f"Lancer le tournoi n°{choice + 1}",
-            StartTournamentController(self.tournaments_list[choice]))
-        self.menu.add(
+            StartTournamentController(self._tournaments_list[choice]))
+        self._menu.add(
             "a",
             "Allez au menu d'acceuil",
             main_controllers.HomeMenuController())
-        self.menu.add(
+        self._menu.add(
             "q",
             "Quitter l'application",
             main_controllers.ExitApplicationController())
@@ -524,23 +524,23 @@ class GenerateTournamentsReportsController:
     to let the user to choose reports link to tournament'''
 
     def __init__(self, tournament_number=None):
-        self.menu = Menu()
+        self._menu = Menu()
         self._view_tournament = TournamentListView()
-        self._view_report = GenerateReportsMenuView(self.menu)
-        self.tournament_number = tournament_number
+        self._view_report = GenerateReportsMenuView(self._menu)
+        self._tournament_number = tournament_number
 
     def __call__(self):
-        if self.tournament_number is None:
+        if self._tournament_number is None:
             # Show the tournament list
             self._view_tournament.show_tournaments(Tournaments.tournaments)
 
             # Ask tournament choice
             choice = self._view_tournament.get_tournament_choice()
         else:
-            choice = self.tournament_number
+            choice = self._tournament_number
 
         # Generate the reports menu
-        self.menu.add(
+        self._menu.add(
             "auto",
             "Afficher tous les joueurs du tournoi "
             f"n°{choice + 1} par ordre alphabétique",
@@ -548,7 +548,7 @@ class GenerateTournamentsReportsController:
                 Tournaments.tournaments[choice],
                 "Name",
                 choice))
-        self.menu.add(
+        self._menu.add(
             "auto",
             "Afficher tous les joueurs du tournoi "
             f"n°{choice + 1} par classement",
@@ -556,29 +556,29 @@ class GenerateTournamentsReportsController:
                 Tournaments.tournaments[choice],
                 "Ranking",
                 choice))
-        self.menu.add(
+        self._menu.add(
             "auto",
             f"Afficher tous les tours du tournoi n°{choice + 1}.",
             TournamentsReportsListController(
                 Tournaments.tournaments[choice],
                 "Turn",
                 choice))
-        self.menu.add(
+        self._menu.add(
             "auto",
             f"Afficher tous les matchs du tournoi n°{choice + 1}",
             TournamentsReportsListController(
                 Tournaments.tournaments[choice],
                 "Match",
                 choice))
-        self.menu.add(
+        self._menu.add(
             "auto",
             "Revenir à la liste des rapports",
             main_controllers.GenerateReportsController())
-        self.menu.add(
+        self._menu.add(
             "a",
             "Allez au menu d'acceuil",
             main_controllers.HomeMenuController())
-        self.menu.add(
+        self._menu.add(
             "q",
             "Quitter l'application",
             main_controllers.ExitApplicationController())
@@ -602,22 +602,22 @@ class TournamentsReportsListController:
     '''
 
     def __init__(self, tournament, list_filter, choice):
-        self._view = TournamentsReportsListView(list_filter)
-        self.list_filter = list_filter
+        self._view = TournamentsReportsListView()
+        self._list_filter = list_filter
         if list_filter == "Name":
-            self.tournament_report = self._sort_player_by_name(tournament)
+            self._tournament_report = self._sort_player_by_name(tournament)
         elif list_filter == "Ranking":
-            self.tournament_report = self._sort_player_by_ranking(tournament)
+            self._tournament_report = self._sort_player_by_ranking(tournament)
         elif list_filter == "Turn" or list_filter == "Match":
-            self.tournament_report = tournament.turns
-        self.choice = choice
+            self._tournament_report = tournament.turns
+        self._choice = choice
 
     def __call__(self):
         # Show the tournament report
-        self._view.show_report(self.tournament_report, self.list_filter)
+        self._view.show_report(self._tournament_report, self._list_filter)
 
         # Return to the Tournaments Reports controller
-        return GenerateTournamentsReportsController(self.choice)
+        return GenerateTournamentsReportsController(self._choice)
 
     def _sort_player_by_name(self, tournament):
         players = []
