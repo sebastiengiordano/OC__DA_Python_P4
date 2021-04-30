@@ -1,4 +1,5 @@
 <p align="center">
+    <a href="https://user.oc-static.com/upload/2020/09/22/16007793690358_chess%20club-01.png" class="oc-imageLink oc-imageLink--disabled"><img src="https://user.oc-static.com/upload/2020/09/22/16007793690358_chess%20club-01.png" alt="Logo"></a>
     <h1 align="center">Chess tournament</h1>
     <h2 align="center">(Swiss system)</h2>
     </br>
