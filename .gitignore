@@ -2,6 +2,3 @@
 env
 **/__pycache__
 *.json
-**/flake-report/*.svg
-**/flake-report/*.html
-**/flake-report/*.css
