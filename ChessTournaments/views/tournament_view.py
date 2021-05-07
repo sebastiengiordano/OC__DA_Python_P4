@@ -294,7 +294,7 @@ class StartTournamentView:
         width = self._peers_lenght(peer_list)
 
         menu_frame, menu_label = view_utils.menu_frame_design(
-            f"\nListe des pairs pour le tour n°{turn_number}",
+            f"Liste des pairs pour le tour n°{turn_number}",
             width)
         width = max(len(menu_frame), width)
         print("\n" + menu_frame)
