@@ -112,7 +112,7 @@ In the terminal, you could see the home menu, which invit you to choose one of t
 2. Start or restart a tournament:
 <p align="justify">
   This option allow you to show filtered or sorted tournament.
-  Then you can start one of them; or restart it if all rounds have'nt been played.
+  Then you can start one of them; or restart it if all rounds haven't been played.
 </p>
 
 <br>
@@ -193,23 +193,23 @@ From OC__DA_Python_P4\ChessTournaments folder, you will find the following folde
 <br>
 
 ### Folder controllers
-In the folder controllers, you retreive all the controllers which aim to manage the application.
+In the folder controllers, you retrieve all the controllers which aim to manage the application.
 
 <br>
 
 ### Folder models
 In the folder models, you have the subfolder "database" where the players and tournaments are saved.
-There is also all objets link to tournamanent, player and menu which  aloow to manage them.
+There is also all objects link to tournament, player and menu which  allow to manage them.
 
 <br>
 
 ### Folder tools
-In the folder tools, where is some boilerplate functions for this project.
+In the folder tools, there is some boilerplate functions for this project.
 
 <br>
 
 ### Folder views
-In the folder views, you retreive the human machin interface.
+In the folder views, you retrieve the human machine interface.
 
 <br>
 
